@@ -1,15 +1,8 @@
-from infixpy import *
 from collections import Counter
-
-from advent_of_code_2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_lines
 
 lines = read_lines()
-items = (
-    Seq(lines)
-    .map(lambda s: s.strip().split())
-    .map(lambda s: (int(s[0]), int(s[1])))
-    .tolist()
-)
+items = [tuple(map(int, line.strip().split())) for line in lines]
 
 
 def part1():
