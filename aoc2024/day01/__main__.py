@@ -1,7 +1,8 @@
 from collections import Counter
-from aoc2024.utils.reader import read_lines
 
-lines = read_lines()
+from aoc2024.utils.reader import read_input
+
+lines = read_input()
 items = [tuple(map(int, line.strip().split())) for line in lines]
 list1, list2 = tuple(zip(*items))
 

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "advent-of-code-2024"
+name = "aoc2024"
 version = "0.1.0"
 description = ""
 authors = ["Attila Szucs <attila.szucs@gmail.com>"]
@@ -11,6 +11,8 @@ python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
+pylint = "^3.3.2"
+mypy = "^1.13.0"
 
 [build-system]
 requires = ["poetry-core"]

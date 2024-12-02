@@ -1,9 +1,8 @@
-from typing import Optional
-from aoc2024.utils.lists import remove_at
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.collections import remove_at
+from aoc2024.utils.reader import read_input
 
 
-lines = read_lines()  # path="test.txt")
+lines = read_input()
 numbers = [[int(level) for level in line.split()] for line in lines]
 good_sets = [{1, 2, 3}, {-1, -2, -3}]
 
@@ -31,6 +30,7 @@ def part2():
         for i, diff in enumerate(diffs[1:]):
             if diff not in good_set:
                 return i + 1
+        return -1
 
     def is_safe2(levels: list[int]) -> bool:
         if is_safe(levels):

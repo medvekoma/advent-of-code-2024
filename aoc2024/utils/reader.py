@@ -1,9 +1,9 @@
-def read_text(path: str = "input.txt") -> str:
-    with open(path, "r") as file:
-        return file.read().strip()
+import inspect
+from os import path
 
 
-def read_lines(path: str = "input.txt") -> list[str]:
-    with open(path, "r") as file:
-        lines = file.readlines()
-    return [line.strip() for line in lines]
+def read_input(is_test: bool = False) -> list[str]:
+    file_name = "input_test.txt" if is_test else "input_real.txt"
+    file_path = path.join(path.dirname((inspect.stack()[1])[1]), file_name)
+    with open(file_path, "r", encoding="utf-8") as file:
+        return [line.rstrip() for line in file]
