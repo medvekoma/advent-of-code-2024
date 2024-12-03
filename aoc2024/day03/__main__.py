@@ -1,17 +1,25 @@
+import re
 from aoc2024.utils.collections import parse_lines
 from aoc2024.utils.reader import read_lines
 
 
-lines = read_lines(is_test=True)
-groups = parse_lines(lines, r"(\d+)\s+\-\s+(\d+)\s+\-\s+(\w+)")
+lines = read_lines(is_test=False)
+text = "".join(lines)
 
 
 def part1():
-    return groups
+    matches = re.findall(r"mul\((\d+),(\d+)\)", text)
+    matches = [(int(a), int(b)) for a, b in matches]
+    return sum(a * b for a, b in matches)
 
 
 def part2():
-    return -1
+    text2 = "do()" + text + "don't()"
+    matches = re.findall(r"do\(\)(.+?)don't\(\)", text2)
+    all_text = "".join(matches)
+    matches = re.findall(r"mul\((\d+),(\d+)\)", all_text)
+    matches = [(int(a), int(b)) for a, b in matches]
+    return sum(a * b for a, b in matches)
 
 
 print(f"part1: {part1()}")
