@@ -1,5 +1,4 @@
 import re
-from aoc2024.utils.collections import parse_lines
 from aoc2024.utils.reader import read_lines
 
 
