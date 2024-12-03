@@ -1,8 +1,8 @@
 from aoc2024.utils.collections import remove_at
-from aoc2024.utils.reader import read_input
+from aoc2024.utils.reader import read_lines
 
 
-lines = read_input()
+lines = read_lines()
 numbers = [[int(level) for level in line.split()] for line in lines]
 good_sets = [{1, 2, 3}, {-1, -2, -3}]
 

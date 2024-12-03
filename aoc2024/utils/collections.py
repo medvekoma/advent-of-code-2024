@@ -1,3 +1,4 @@
+import re
 from typing import Callable, TypeVar, Generator, Optional
 
 T = TypeVar("T")
@@ -25,3 +26,8 @@ def find_index(lst: list, condition: Callable) -> Optional[int]:
 
 def remove_at(lst: list, index: int) -> list:
     return lst[:index] + lst[index + 1 :]
+
+
+def parse_lines(lines: list[str], pattern: str) -> list[tuple]:
+    matches = [re.search(pattern, line) for line in lines]
+    return [match.groups() for match in matches if match]
