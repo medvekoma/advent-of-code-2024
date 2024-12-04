@@ -2,38 +2,29 @@ import numpy as np
 from aoc2024.utils.reader import read_lines
 
 
-lines = read_lines(is_test=False)
+lines = read_lines()
 
 matrix = np.array([list(line) for line in lines])
 rows, cols = matrix.shape
 
 
-def get_diagonals(matrix_):
-    rows_, cols_ = matrix_.shape
+def get_diagonals(matrix_param):
+    rows_param, cols_param = matrix_param.shape
     return [
-        "".join(matrix_.diagonal(offset)) for offset in range(cols_ - 1, -rows_, -1)
+        "".join(matrix_param.diagonal(offset))
+        for offset in range(-rows_param + 1, cols_param)
     ]
 
 
 def get_lines():
     horizontal = ["".join(row) for row in matrix]
-    horizontal_back = [line[::-1] for line in horizontal]
-    diagonals = get_diagonals(matrix)
-    diagonals_back = [line[::-1] for line in diagonals]
     vertical = ["".join(row) for row in matrix.T]
-    vertical_back = [line[::-1] for line in vertical]
+    diagonals = get_diagonals(matrix)
     anti_diagonals = get_diagonals(np.fliplr(matrix))
-    anti_diagonals_back = [line[::-1] for line in anti_diagonals]
-    return (
-        horizontal
-        + horizontal_back
-        + diagonals
-        + diagonals_back
-        + vertical
-        + vertical_back
-        + anti_diagonals
-        + anti_diagonals_back
-    )
+
+    one_way = horizontal + diagonals + vertical + anti_diagonals
+
+    return one_way + [line[::-1] for line in one_way]
 
 
 def part1():
