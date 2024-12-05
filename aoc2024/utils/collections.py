@@ -1,3 +1,4 @@
+from collections import defaultdict
 import re
 from typing import Callable, TypeVar, Generator, Optional
 
@@ -15,6 +16,13 @@ def split_by(the_list: list[T], element: T) -> Generator[list[T], None, None]:
 
 def split_into(collection: list[T], size: int) -> list[list[T]]:
     return [collection[i : i + size] for i in range(0, len(collection), size)]
+
+
+def partition(collection: list[T], condition: Callable[[T], bool]) -> tuple[list[T], list[T]]:
+    result = defaultdict(list)
+    for item in collection:
+        result[condition(item)].append(item)
+    return result[True], result[False]
 
 
 def find_index(lst: list, condition: Callable) -> Optional[int]:
