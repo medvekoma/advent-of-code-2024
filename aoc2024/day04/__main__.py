@@ -10,9 +10,10 @@ rows, cols = matrix.shape
 
 def get_diagonals(matrix_param):
     rows_param, cols_param = matrix_param.shape
+    # by adding 3 to the range limits we can skip the items shorter than 4
     return [
         "".join(matrix_param.diagonal(offset))
-        for offset in range(-rows_param + 1, cols_param)
+        for offset in range(-rows_param + 4, cols_param - 3)
     ]
 
 
@@ -34,8 +35,6 @@ def part1():
 
 
 def is_xmas(r: int, c: int) -> bool:
-    if r < 1 or r >= rows - 1 or c < 1 or c >= cols - 1:
-        return False
     if matrix[r, c] != "A":
         return False
     if {matrix[r - 1, c - 1], matrix[r + 1, c + 1]} != {"M", "S"}:
@@ -46,7 +45,12 @@ def is_xmas(r: int, c: int) -> bool:
 
 
 def part2():
-    indices = [(r, c) for r in range(rows) for c in range(cols) if is_xmas(r, c)]
+    indices = [
+        (row, col)
+        for row in range(1, rows - 1)
+        for col in range(1, cols - 1)
+        if is_xmas(row, col)
+    ]
     return len(indices)
 
 
