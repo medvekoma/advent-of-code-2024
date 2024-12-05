@@ -10,7 +10,6 @@ good_sets = [{1, 2, 3}, {-1, -2, -3}]
 def is_safe(levels: list[int]) -> bool:
     diffs = {x - y for x, y in zip(levels, levels[1:])}
     return any(diffs.issubset(good_set) for good_set in good_sets)
-    # return diffs.issubset({1, 2, 3}) or diffs.issubset({-1, -2, -3})
 
 
 def part1():
