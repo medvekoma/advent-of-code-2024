@@ -20,18 +20,16 @@ original_position = position
 orientation = (-1, 0)
 
 
-def add(a: Cell, b: Orientation) -> Cell:
-    return (a[0] + b[0], a[1] + b[1])
+def step(a: Cell, b: Orientation) -> Cell:
+    return a[0] + b[0], a[1] + b[1]
 
 
-def rotate(ori: Orientation, clockwise: bool = True) -> Orientation:
-    if clockwise:
-        return ori[1], -ori[0]
-    return -ori[1], ori[0]
+def turn_right(ori: Orientation) -> Orientation:
+    return ori[1], -ori[0]
 
 
 def move_if_possible(obsts: set[Cell], pos: Cell, ori: Orientation) -> Optional[Cell]:
-    new_pos = add(pos, ori)
+    new_pos = step(pos, ori)
     if new_pos in obsts:
         return None
     return new_pos
@@ -39,7 +37,7 @@ def move_if_possible(obsts: set[Cell], pos: Cell, ori: Orientation) -> Optional[
 
 def move(obsts: set[Cell], pos: Cell, ori: Orientation) -> tuple[Cell, Orientation]:
     while not (new_pos := move_if_possible(obsts, pos, ori)):
-        ori = rotate(ori)
+        ori = turn_right(ori)
     return new_pos, ori
 
 
@@ -47,49 +45,37 @@ def is_outside(pos: Cell) -> bool:
     return pos[0] < 0 or pos[0] >= rows or pos[1] < 0 or pos[1] >= cols
 
 
-def part1():
-    pos, ori = position, orientation
-    positions = {position}
-    while True:
-        pos, ori = move(obstructions, pos, ori)
-        if is_outside(pos):
-            break
-        positions.add(pos)
-    return len(positions)
-
-
 def is_in_loop(
-    obsts: set[Cell],
     visited_pairs: set[tuple[Cell, Orientation]],
     pos: Cell,
     ori: Orientation,
     next_pos: Cell,
 ) -> bool:
-    _obsts = obsts | {next_pos}
-    _visited_pairs = set.copy(visited_pairs)
+    _obstructions = obstructions | {next_pos}
+    new_pairs = set()
     while True:
-        pos, ori = move(_obsts, pos, ori)
+        pos, ori = move(_obstructions, pos, ori)
         if is_outside(pos):
             return False
         pair = (pos, ori)
-        if pair in _visited_pairs:
+        if pair in visited_pairs or pair in new_pairs:
             return True
-        _visited_pairs.add(pair)
+        new_pairs.add(pair)
 
 
 @timer
-def part2():
-    pos, ori = position, orientation
+def parts():
     visited_positions = {position}
     visited_pairs = {(position, orientation)}
     checked_blockers = set(original_position)
     blockers = set()
+    pos, ori = position, orientation
     while True:
         new_pos, new_ori = move(obstructions, pos, ori)
         if is_outside(new_pos):
             break
         if new_pos not in checked_blockers:
-            if is_in_loop(obstructions, visited_pairs, pos, ori, new_pos):
+            if is_in_loop(visited_pairs, pos, ori, new_pos):
                 blockers.add(new_pos)
             checked_blockers.add(new_pos)
         pos, ori = new_pos, new_ori
@@ -98,5 +84,4 @@ def part2():
     return (len(visited_positions), len(blockers))
 
 
-# print(f"part1: {part1()}")
-print(f"part2: {part2()}")
+print(f"parts: {parts()}")
