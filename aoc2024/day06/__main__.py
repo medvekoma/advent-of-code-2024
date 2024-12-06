@@ -20,18 +20,16 @@ original_position = position
 orientation = (-1, 0)
 
 
-def add(a: Cell, b: Orientation) -> Cell:
-    return (a[0] + b[0], a[1] + b[1])
+def step(a: Cell, b: Orientation) -> Cell:
+    return a[0] + b[0], a[1] + b[1]
 
 
-def rotate(ori: Orientation, clockwise: bool = True) -> Orientation:
-    if clockwise:
-        return ori[1], -ori[0]
-    return -ori[1], ori[0]
+def turn_right(ori: Orientation) -> Orientation:
+    return ori[1], -ori[0]
 
 
 def move_if_possible(obsts: set[Cell], pos: Cell, ori: Orientation) -> Optional[Cell]:
-    new_pos = add(pos, ori)
+    new_pos = step(pos, ori)
     if new_pos in obsts:
         return None
     return new_pos
@@ -39,7 +37,7 @@ def move_if_possible(obsts: set[Cell], pos: Cell, ori: Orientation) -> Optional[
 
 def move(obsts: set[Cell], pos: Cell, ori: Orientation) -> tuple[Cell, Orientation]:
     while not (new_pos := move_if_possible(obsts, pos, ori)):
-        ori = rotate(ori)
+        ori = turn_right(ori)
     return new_pos, ori
 
 
@@ -67,11 +65,11 @@ def is_in_loop(
 
 @timer
 def parts():
-    pos, ori = position, orientation
     visited_positions = {position}
     visited_pairs = {(position, orientation)}
     checked_blockers = set(original_position)
     blockers = set()
+    pos, ori = position, orientation
     while True:
         new_pos, new_ori = move(obstructions, pos, ori)
         if is_outside(new_pos):
