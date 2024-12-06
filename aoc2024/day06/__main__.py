@@ -1,93 +1,101 @@
 from typing import Optional
-import numpy as np
 from aoc2024.utils.reader import read_lines
+from aoc2024.utils.timer import timer
 
 lines = read_lines(is_test=False)
+type Cell = tuple[int, int]
+type Orientation = tuple[int, int]
 
-array = [list(line) for line in lines]
-matrix1 = np.array(array)
-matrix = np.pad(matrix1, pad_width=1)
-position = tuple(np.argwhere(matrix == "^")[0])
+rows = len(lines)
+cols = len(lines[0])
+obstructions: set[Cell] = set()
+position: Cell = (0, 0)
+for r in range(rows):
+    for c in range(cols):
+        if lines[r][c] == "#":
+            obstructions.add((r, c))
+        if lines[r][c] == "^":
+            position = (r, c)
 original_position = position
 orientation = (-1, 0)
-matrix[position] = "."
 
 
-def add(a: tuple, b: tuple) -> tuple:
-    return tuple(map(sum, zip(a, b)))
+def add(a: Cell, b: Orientation) -> Cell:
+    return (a[0] + b[0], a[1] + b[1])
 
 
-def rotate(ori: tuple, clockwise: bool = True) -> tuple:
+def rotate(ori: Orientation, clockwise: bool = True) -> Orientation:
     if clockwise:
         return ori[1], -ori[0]
     return -ori[1], ori[0]
 
 
-def move_if_possible(mtx: np.ndarray, pos: tuple, ori: tuple) -> Optional[tuple]:
+def move_if_possible(obsts: set[Cell], pos: Cell, ori: Orientation) -> Optional[Cell]:
     new_pos = add(pos, ori)
-    if mtx[new_pos] == "#":
+    if new_pos in obsts:
         return None
     return new_pos
 
 
-def move(mtx: np.ndarray, pos: tuple, ori: tuple) -> tuple[tuple, tuple]:
-    new_pos = move_if_possible(mtx, pos, ori)
-    if new_pos:
-        return (new_pos, ori)
-    new_ori = rotate(ori)
-    return move(mtx, pos, new_ori)
+def move(obsts: set[Cell], pos: Cell, ori: Orientation) -> tuple[Cell, Orientation]:
+    while not (new_pos := move_if_possible(obsts, pos, ori)):
+        ori = rotate(ori)
+    return new_pos, ori
+
+
+def is_outside(pos: Cell) -> bool:
+    return pos[0] < 0 or pos[0] >= rows or pos[1] < 0 or pos[1] >= cols
 
 
 def part1():
     pos, ori = position, orientation
     positions = {position}
     while True:
-        pos, ori = move(matrix, pos, ori)
-        if matrix[pos] == "0":
+        pos, ori = move(obstructions, pos, ori)
+        if is_outside(pos):
             break
         positions.add(pos)
     return len(positions)
 
 
 def is_in_loop(
-    mtx: np.ndarray,
-    visited_pairs: set[tuple[tuple, tuple]],
-    pos: tuple,
-    ori: tuple,
-    next_pos: tuple,
+    obsts: set[Cell],
+    visited_pairs: set[tuple[Cell, Orientation]],
+    pos: Cell,
+    ori: Orientation,
+    next_pos: Cell,
 ) -> bool:
-    if next_pos == original_position:
-        return False
-    new_mtx = mtx.copy()
-    new_mtx[next_pos] = "#"
-    pairs = visited_pairs.copy()
+    _obsts = obsts | {next_pos}
+    _visited_pairs = set.copy(visited_pairs)
     while True:
-        pos, ori = move(new_mtx, pos, ori)
-        if matrix[pos] == "0":
+        pos, ori = move(_obsts, pos, ori)
+        if is_outside(pos):
             return False
         pair = (pos, ori)
-        if pair in pairs:
+        if pair in _visited_pairs:
             return True
-        pairs.add(pair)
+        _visited_pairs.add(pair)
 
 
+@timer
 def part2():
     pos, ori = position, orientation
-    positions = {position}
-    pairs = {(position, orientation)}
-    checked_positions = set()
+    visited_positions = {position}
+    visited_pairs = {(position, orientation)}
+    checked_blockers = set(original_position)
     blockers = set()
     while True:
-        new_pos, new_ori = move(matrix, pos, ori)
-        if matrix[new_pos] == "0":
+        new_pos, new_ori = move(obstructions, pos, ori)
+        if is_outside(new_pos):
             break
-        if new_pos not in checked_positions and is_in_loop(matrix, pairs, pos, ori, new_pos):
-            blockers.add(new_pos)
-        checked_positions.add(new_pos)
+        if new_pos not in checked_blockers:
+            if is_in_loop(obstructions, visited_pairs, pos, ori, new_pos):
+                blockers.add(new_pos)
+            checked_blockers.add(new_pos)
         pos, ori = new_pos, new_ori
-        positions.add(pos)
-        pairs.add((pos, ori))
-    return (len(positions), len(blockers))
+        visited_positions.add(pos)
+        visited_pairs.add((pos, ori))
+    return (len(visited_positions), len(blockers))
 
 
 # print(f"part1: {part1()}")
