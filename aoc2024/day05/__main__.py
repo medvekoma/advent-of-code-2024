@@ -31,10 +31,10 @@ def part1():
 
 def fix_pages(pages: list[int], reverse_rule_dict: dict[int, set[int]]) -> list[int]:
     for i, page in enumerate(pages):
-        if page in reverse_rule_dict:
+        preceeding_pages = reverse_rule_dict.get(page, set())
+        if preceeding_pages:
             remaining_pages = pages[i + 1 :]
-            preceeding_pages = reverse_rule_dict[page]
-            first_bad_page = next(filter(lambda p: p in preceeding_pages, remaining_pages), None)
+            first_bad_page = next((item for item in remaining_pages if item in preceeding_pages), None)
             if first_bad_page:
                 fixed_pages = pages[:i] + [first_bad_page, page] + [p for p in pages[i + 1 :] if p != first_bad_page]
                 return fix_pages(fixed_pages, reverse_rule_dict)
