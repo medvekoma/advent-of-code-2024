@@ -1,4 +1,3 @@
-from collections import defaultdict
 import re
 from typing import Callable, TypeVar, Generator, Optional
 
@@ -19,7 +18,7 @@ def split_into(collection: list[T], size: int) -> list[list[T]]:
 
 
 def partition(collection: list[T], condition: Callable[[T], bool]) -> tuple[list[T], list[T]]:
-    result = defaultdict(list)
+    result: dict[bool, list[T]] = {True: [], False: []}
     for item in collection:
         result[condition(item)].append(item)
     return result[True], result[False]
