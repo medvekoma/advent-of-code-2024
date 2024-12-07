@@ -1,8 +1,6 @@
 import re
 from operator import add, mul
 from itertools import product
-from functools import lru_cache
-from typing import Optional
 from aoc2024.utils.collections import partition
 from aoc2024.utils.reader import read_lines
 from aoc2024.utils.timer import timer
@@ -32,7 +30,6 @@ def test_line(numbers: list[int], operators: list) -> bool:
     return False
 
 
-@lru_cache(maxsize=1024)
 def concat(a: int, b: int) -> int:
     # return int(str(a) + str(b))
     # hacks for more efficient concatenation
@@ -52,8 +49,8 @@ def parts():
     result1 = sum(line[0] for line in good_lines)
     print(f"part1: {result1}")
 
-    good_lines2 = [line for line in bad_lines if test_line(line, [add, mul, concat])]
-    result2 = result1 + sum(line[0] for line in good_lines2)
+    good_lines = [line for line in bad_lines if test_line(line, [concat, add, mul])]
+    result2 = result1 + sum(line[0] for line in good_lines)
     print(f"part2: {result2}")
 
 
