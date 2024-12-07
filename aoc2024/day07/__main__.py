@@ -1,30 +1,30 @@
 import re
 from operator import add, mul
 from itertools import product
+from typing import Callable, Iterable
 from aoc2024.utils.collections import partition
 from aoc2024.utils.reader import read_lines
 from aoc2024.utils.timer import timer
 
 lines = read_lines(is_test=False)
+type Operator = Callable[[int, int], int]
 
 input_strings = [re.findall(r"\d+", line) for line in lines]
 input_numbers = [[int(s) for s in strings] for strings in input_strings]
 
 
-def operator_lists(length: int, operators: list):
+def operators_permutations(length: int, operators: list[Operator]) -> Iterable[tuple[Operator]]:
     yield from product(operators, repeat=length)
 
 
-def test_line(numbers: list[int], operators: list) -> bool:
+def test_line(numbers: list[int], operators: list[Operator]) -> bool:
     expected_result = numbers[0]
     first_num = numbers[1]
     next_numbers = numbers[2:]
-    for ops in operator_lists(len(next_numbers), operators):
+    for ops in operators_permutations(len(next_numbers), operators):
         result = first_num
         for op, num in zip(ops, next_numbers):
             result = op(result, num)
-            # if result > expected_result:
-            #     break
         if result == expected_result:
             return True
     return False
