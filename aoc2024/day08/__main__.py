@@ -29,15 +29,20 @@ def is_in_range(cell: Cell) -> bool:
 
 def generate_antidotes(cells: list[Cell]) -> list[Cell]:
     cell_pairs = combinations(cells, 2)
-    "3, 1 -> -1, 5; (a + a-b), (b- (a-b)) (2a-b, 2b-a)"
-    antidote_pairs = [((2 * r1 - r2, 2 * c1 - c2), (2 * r2 - r1, 2 * c2 - c1)) for ((r1, c1), (r2, c2)) in cell_pairs]
+    antidote_pairs = [
+        (
+            (2 * r1 - r2, 2 * c1 - c2),
+            (2 * r2 - r1, 2 * c2 - c1),
+        )
+        for ((r1, c1), (r2, c2)) in cell_pairs
+    ]
     antidotes = {cell for pair in antidote_pairs for cell in pair if is_in_range(cell)}
     return antidotes
 
 
 def part1():
     all_antidotes = set()
-    for antenna, cells in antenna_map.items():
+    for cells in antenna_map.values():
         antidotes = generate_antidotes(cells)
         all_antidotes |= antidotes
     return len(all_antidotes)
@@ -54,24 +59,19 @@ def generate_line_antidotes(cell_pair: tuple[Cell, Cell]) -> list[Cell]:
     direction = get_direction_vector(cell_pair)
     antidotes = set()
     cell = cell_pair[0]
-    while True:
+    while is_in_range(cell):
+        antidotes.add(cell)
         cell = (cell[0] + direction[0], cell[1] + direction[1])
-        if not is_in_range(cell):
-            break
-        antidotes.add(cell)
     cell = cell_pair[0]
-    while True:
-        cell = (cell[0] - direction[0], cell[1] - direction[1])
-        if not is_in_range(cell):
-            break
+    while is_in_range(cell):
         antidotes.add(cell)
-    antidotes = antidotes | {cell_pair[0], cell_pair[1]}
+        cell = (cell[0] - direction[0], cell[1] - direction[1])
     return antidotes
 
 
 def part2():
     all_antidotes = set()
-    for antenna, cells in antenna_map.items():
+    for cells in antenna_map.values():
         pairs = combinations(cells, 2)
         for pair in pairs:
             antidotes = generate_line_antidotes(pair)
