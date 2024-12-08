@@ -11,9 +11,8 @@ cols = len(lines[0])
 
 antenna_map: dict[str, list[Cell]] = defaultdict(list)
 
-for r in range(len(lines)):
-    for c in range(len(lines[0])):
-        char = lines[r][c]
+for r, line in enumerate(lines):
+    for c, char in enumerate(line):
         if char != ".":
             antenna_map[char].append((r, c))
 
@@ -22,7 +21,7 @@ def is_in_range(cell: Cell) -> bool:
     return 0 <= cell[0] < rows and 0 <= cell[1] < cols
 
 
-def generate_antidotes(cells: list[Cell]) -> list[Cell]:
+def generate_antidotes(cells: list[Cell]) -> set[Cell]:
     cell_pairs = combinations(cells, 2)
     antidote_pairs = [
         (
@@ -43,14 +42,14 @@ def part1():
     return len(all_antidotes)
 
 
-def get_direction_vector(pair: tuple[Cell]) -> Cell:
+def get_direction_vector(pair: tuple[Cell, Cell]) -> Cell:
     vector = (pair[1][0] - pair[0][0], pair[1][1] - pair[0][1])
     # normalize vector
     gcd = math.gcd(*vector)
     return vector[0] // gcd, vector[1] // gcd
 
 
-def generate_line_antidotes(cell_pair: tuple[Cell, Cell]) -> list[Cell]:
+def generate_line_antidotes(cell_pair: tuple[Cell, Cell]) -> set[Cell]:
     direction = get_direction_vector(cell_pair)
     antidotes = set()
     cell = cell_pair[0]
