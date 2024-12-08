@@ -1,12 +1,7 @@
 from collections import defaultdict
 import math
-import re
-from operator import add, mul
 from itertools import combinations
-from typing import Callable, Iterable
-from aoc2024.utils.collections import partition
 from aoc2024.utils.reader import read_lines
-from aoc2024.utils.timer import timer
 
 type Cell = tuple[int, int]
 
