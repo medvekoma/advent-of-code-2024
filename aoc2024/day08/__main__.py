@@ -21,25 +21,25 @@ def is_in_range(cell: Cell) -> bool:
     return 0 <= cell[0] < rows and 0 <= cell[1] < cols
 
 
-def generate_antidotes(cells: list[Cell]) -> set[Cell]:
+def generate_antinodes(cells: list[Cell]) -> set[Cell]:
     cell_pairs = combinations(cells, 2)
-    antidote_pairs = [
+    antinode_pairs = [
         (
             (2 * r1 - r2, 2 * c1 - c2),
             (2 * r2 - r1, 2 * c2 - c1),
         )
         for ((r1, c1), (r2, c2)) in cell_pairs
     ]
-    antidotes = {cell for pair in antidote_pairs for cell in pair if is_in_range(cell)}
-    return antidotes
+    antinodes = {cell for pair in antinode_pairs for cell in pair if is_in_range(cell)}
+    return antinodes
 
 
 def part1():
-    all_antidotes = set()
+    all_antinodes = set()
     for cells in antenna_map.values():
-        antidotes = generate_antidotes(cells)
-        all_antidotes |= antidotes
-    return len(all_antidotes)
+        antinodes = generate_antinodes(cells)
+        all_antinodes |= antinodes
+    return len(all_antinodes)
 
 
 def get_direction_vector(pair: tuple[Cell, Cell]) -> Cell:
@@ -49,28 +49,28 @@ def get_direction_vector(pair: tuple[Cell, Cell]) -> Cell:
     return vector[0] // gcd, vector[1] // gcd
 
 
-def generate_line_antidotes(cell_pair: tuple[Cell, Cell]) -> set[Cell]:
+def generate_line_antinodes(cell_pair: tuple[Cell, Cell]) -> set[Cell]:
     direction = get_direction_vector(cell_pair)
-    antidotes = set()
+    antinodes = set()
     cell = cell_pair[0]
     while is_in_range(cell):
-        antidotes.add(cell)
+        antinodes.add(cell)
         cell = (cell[0] + direction[0], cell[1] + direction[1])
     cell = cell_pair[0]
     while is_in_range(cell):
-        antidotes.add(cell)
+        antinodes.add(cell)
         cell = (cell[0] - direction[0], cell[1] - direction[1])
-    return antidotes
+    return antinodes
 
 
 def part2():
-    all_antidotes = set()
+    all_antinodes = set()
     for cells in antenna_map.values():
         pairs = combinations(cells, 2)
         for pair in pairs:
-            antidotes = generate_line_antidotes(pair)
-            all_antidotes |= antidotes
-    return len(all_antidotes)
+            antinodes = generate_line_antinodes(pair)
+            all_antinodes |= antinodes
+    return len(all_antinodes)
 
 
 print(f"part1: {part1()}")
