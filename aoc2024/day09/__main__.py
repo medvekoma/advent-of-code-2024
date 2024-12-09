@@ -1,7 +1,3 @@
-from collections import defaultdict
-from dataclasses import dataclass
-import math
-from itertools import combinations, permutations, product
 from typing import Optional
 from aoc2024.utils.reader import read_lines
 
@@ -21,18 +17,13 @@ def process_line(line: str) -> list[int]:
     return result
 
 
-def next_idx(disk: list[int], idx: int, is_free: bool) -> Optional[int]:
+def next_free_idx(disk: list[int], idx: int) -> Optional[int]:
     while True:
         idx += 1
         if idx >= len(disk):
             return None
-        condition = disk[idx] == -1 if is_free else disk[idx] != -1
-        if condition:
+        if disk[idx] == -1:
             return idx
-
-
-def next_free_idx(disk: list[int], idx: int) -> Optional[int]:
-    return next_idx(disk, idx, is_free=True)
 
 
 def prev_used_idx(disk: list[int], idx: int) -> Optional[int]:
@@ -71,9 +62,4 @@ def part1():
     return checksum
 
 
-def next_used_idx(disk: list[int], idx: int) -> Optional[int]:
-    return next_idx(disk, idx, is_free=False)
-
-
 print(f"part1: {part1()}")
-# print(f"part2: {part2()}")
