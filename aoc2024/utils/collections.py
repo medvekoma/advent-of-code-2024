@@ -1,6 +1,5 @@
 import re
 from typing import Callable, TypeVar, Generator, Optional
-import numpy as np
 
 T = TypeVar("T")
 
@@ -39,18 +38,3 @@ def remove_at(lst: list, index: int) -> list:
 def parse_lines(lines: list[str], pattern: str) -> list[tuple]:
     matches = [re.search(pattern, line) for line in lines]
     return [match.groups() for match in matches if match]
-
-
-def digit_matix(lines: list[str]) -> np.ndarray:
-    array = [[int(ch) for ch in line] for line in lines]
-    return np.array(array)
-
-
-def get_neighbors(matrix: np.ndarray, cell: tuple[int, int]) -> list[tuple[int, int]]:
-    offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    neighbors = [
-        (cell[0] + r, cell[1] + c)
-        for r, c in offsets
-        if 0 <= cell[0] + r < matrix.shape[0] and 0 <= cell[1] + c < matrix.shape[1]
-    ]
-    return neighbors
