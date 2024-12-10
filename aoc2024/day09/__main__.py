@@ -1,3 +1,5 @@
+from collections import deque
+from dataclasses import dataclass
 from typing import Optional
 from aoc2024.utils.timer import timer
 from aoc2024.utils.collections import remove_at
@@ -66,48 +68,51 @@ def part1():
 
 print(f"part1: {part1()}")
 
-type Block = tuple[int, int]  # (start, length)
-type File = tuple[int, Block]  # (id, block)]
+
+@dataclass
+class Block:
+    start: int
+    length: int
+
+
+@dataclass
+class File:
+    fid: int
+    block: Block
 
 
 class Part2:
-    def __init__(self) -> None:
-        self.free_blocks: list[Block] = []
-        self.unmoved_files: list[File] = []
-        self.moved_files: list[File] = []
-
-    def process_line(self, line: str) -> None:
+    def __init__(self, line: str) -> None:
+        self.free_blocks: deque[Block] = []
+        self.files: deque[File] = []
         cursor = 0
         for i, ch in enumerate(line):
             length = int(ch)
             if length == 0:
                 continue
-            block = (cursor, length)
-            cursor += length
+            block = Block(cursor, length)
             is_file = i % 2 == 0
             if is_file:
                 fid = i // 2
-                self.unmoved_files.insert(0, (fid, block))
+                self.files.appendleft(File(fid, block))
             else:
                 self.free_blocks.append(block)
+            cursor += length
+        self.unmoved_fids: set[int] = set()
 
-    def defragment_step(self) -> bool:
-        for free_idx, free_block in enumerate(self.free_blocks):
-            for file_idx, file in enumerate(self.unmoved_files):
-                fid, file_block = file
-                if file_block[0] < free_block[0]:
+    def defragment_step(self) -> None:
+        for file in self.files:
+            for free_block in self.free_blocks:
+                if file.block.start < free_block.start:
                     continue
-                if free_block[1] >= file_block[1]:
-                    file = (fid, (free_block[0], file_block[1]))
-                    remaining_space = free_block[1] - file_block[1]
-                    if remaining_space == 0:
-                        self.free_blocks = remove_at(self.free_blocks, free_idx)
-                    else:
-                        self.free_blocks[free_idx] = (free_block[0] + file_block[1], remaining_space)
-                    self.unmoved_files = remove_at(self.unmoved_files, file_idx)
-                    self.moved_files.append(file)
-                    return True
-        return False
+                if free_block.length >= file.block.length:
+                    free_block_start = free_block.start
+                    remaining_space = free_block.length - file.block.length
+                    free_block.start += file.block.length
+                    free_block.length = remaining_space
+                    file.block.start = free_block_start
+                    self.unmoved_fids.add(file.fid)
+                    break
 
     def dump(self):
         print(f"free_blocks: {self.free_blocks}")
