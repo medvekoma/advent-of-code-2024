@@ -81,8 +81,8 @@ class File:
 
 class Part2:
     def __init__(self, line: str) -> None:
-        self.free_blocks: deque[Block] = deque([])
-        self.files: deque[File] = deque([])
+        self.free_blocks: list[Block] = []
+        self.files: deque[File] = deque()
         cursor = 0
         for i, ch in enumerate(line):
             length = int(ch)
