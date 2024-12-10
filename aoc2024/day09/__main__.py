@@ -1,8 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
 from typing import Optional
-from aoc2024.utils.timer import timer
-from aoc2024.utils.collections import remove_at
 from aoc2024.utils.reader import read_lines
 
 lines = read_lines(is_test=False)
@@ -83,8 +81,8 @@ class File:
 
 class Part2:
     def __init__(self, line: str) -> None:
-        self.free_blocks: deque[Block] = []
-        self.files: deque[File] = []
+        self.free_blocks: deque[Block] = deque([])
+        self.files: deque[File] = deque([])
         cursor = 0
         for i, ch in enumerate(line):
             length = int(ch)
@@ -98,44 +96,37 @@ class Part2:
             else:
                 self.free_blocks.append(block)
             cursor += length
-        self.unmoved_fids: set[int] = set()
 
-    def defragment_step(self) -> None:
+    def defragment_file(self, file: File) -> None:
+        for free_block in self.free_blocks:
+            if free_block.start > file.block.start:
+                return
+            if free_block.length >= file.block.length:
+                new_file_start = free_block.start
+                remaining_space = free_block.length - file.block.length
+                free_block.start += file.block.length
+                free_block.length = remaining_space
+                file.block.start = new_file_start
+                return
+
+    def defragment_files(self) -> None:
         for file in self.files:
-            for free_block in self.free_blocks:
-                if file.block.start < free_block.start:
-                    continue
-                if free_block.length >= file.block.length:
-                    free_block_start = free_block.start
-                    remaining_space = free_block.length - file.block.length
-                    free_block.start += file.block.length
-                    free_block.length = remaining_space
-                    file.block.start = free_block_start
-                    self.unmoved_fids.add(file.fid)
-                    break
-
-    def dump(self):
-        print(f"free_blocks: {self.free_blocks}")
-        print(f"unmoved_files: {self.unmoved_files}")
-        print(f"moved_files: {self.moved_files}")
+            self.defragment_file(file)
 
     def file_checksum(self, file: File) -> int:
         result = 0
-        fid, (start, length) = file
-        for i in range(length):
-            result += fid * (start + i)
+        for i in range(file.block.length):
+            result += file.fid * (file.block.start + i)
         return result
 
-    @timer
-    def run(self, line: str) -> int:
-        self.process_line(line)
-        # self.dump()
-        while self.defragment_step():
-            pass
-        moved_checksum = sum([self.file_checksum(file) for file in self.moved_files])
-        unmoved_checksum = sum([self.file_checksum(file) for file in self.unmoved_files])
-        return moved_checksum + unmoved_checksum
+    def run(self) -> int:
+        self.defragment_files()
+        result = sum(self.file_checksum(file) for file in self.files)
+        return result
 
 
-part2 = Part2().run(lines[0])
-print(f"part2: {part2}")
+def part2():
+    return Part2(lines[0]).run()
+
+
+print(f"part2: {part2()}")
