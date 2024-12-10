@@ -2,7 +2,6 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Optional
 from aoc2024.utils.reader import read_lines
-from aoc2024.utils.timer import timer
 
 lines = read_lines(is_test=False)
 
@@ -126,7 +125,6 @@ class Part2:
         return result
 
 
-@timer
 def part2():
     return Part2(lines[0]).run()
 
