@@ -2,6 +2,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Optional
 from aoc2024.utils.reader import read_lines
+from aoc2024.utils.timer import timer
 
 lines = read_lines(is_test=False)
 
@@ -81,8 +82,8 @@ class File:
 
 class Part2:
     def __init__(self, line: str) -> None:
-        self.free_blocks: deque[Block] = deque([])
-        self.files: deque[File] = deque([])
+        self.free_blocks: list[Block] = []
+        self.files: deque[File] = deque()
         cursor = 0
         for i, ch in enumerate(line):
             length = int(ch)
@@ -125,6 +126,7 @@ class Part2:
         return result
 
 
+@timer
 def part2():
     return Part2(lines[0]).run()
 
