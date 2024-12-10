@@ -1,10 +1,10 @@
 import numpy as np
-from aoc2024.utils.collections import digit_matix, get_neighbors
+from aoc2024.utils.matrices import Matrix
 from aoc2024.utils.reader import read_lines
 
 lines = read_lines(is_test=False)
 
-matrix = digit_matix(lines)
+matrix = Matrix.from_lines(lines, converter=int)
 
 type Cell = tuple[int, int]
 
@@ -19,7 +19,7 @@ def count_paths(cell: Cell) -> int:
     value = matrix[cell]
     if value == 9:
         return 1
-    good_neighbors = [n for n in get_neighbors(matrix, cell) if matrix[n] == value + 1]
+    good_neighbors = [n for n in matrix.neighbors_of(cell) if matrix[n] == value + 1]
     return sum(count_paths(n) for n in good_neighbors)
 
 
@@ -27,7 +27,7 @@ def collect_trail_ends(cell: Cell) -> set[Cell]:
     value = matrix[cell]
     if value == 9:
         return {cell}
-    good_neighbors = [n for n in get_neighbors(matrix, cell) if matrix[n] == value + 1]
+    good_neighbors = [n for n in matrix.neighbors_of(cell) if matrix[n] == value + 1]
     return {trail_end for neighbor in good_neighbors for trail_end in collect_trail_ends(neighbor)}
 
 

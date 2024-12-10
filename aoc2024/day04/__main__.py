@@ -1,20 +1,18 @@
 import numpy as np
+from aoc2024.utils.matrices import Matrix
 from aoc2024.utils.reader import read_lines
 
 
 lines = read_lines()
 
-matrix = np.array([list(line) for line in lines])
+matrix = Matrix.from_lines(lines)
 rows, cols = matrix.shape
 
 
 def get_diagonals(matrix_param):
     rows_param, cols_param = matrix_param.shape
     # by adding 3 to the range limits we can skip the items shorter than 4
-    return [
-        "".join(matrix_param.diagonal(offset))
-        for offset in range(-rows_param + 4, cols_param - 3)
-    ]
+    return ["".join(matrix_param.diagonal(offset)) for offset in range(-rows_param + 4, cols_param - 3)]
 
 
 def get_lines():
@@ -45,12 +43,7 @@ def is_xmas(r: int, c: int) -> bool:
 
 
 def part2():
-    indices = [
-        (row, col)
-        for row in range(1, rows - 1)
-        for col in range(1, cols - 1)
-        if is_xmas(row, col)
-    ]
+    indices = [(row, col) for row in range(1, rows - 1) for col in range(1, cols - 1) if is_xmas(row, col)]
     return len(indices)
 
 
