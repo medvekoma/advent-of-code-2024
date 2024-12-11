@@ -3,8 +3,8 @@ from functools import cache
 from aoc2024.utils.reader import read_lines
 
 lines = read_lines(is_test=False)
-stones = [int(stone) for stone in lines[0].split(" ")]
-stone_map = dict(Counter(stones))
+stone_list = [int(stone) for stone in lines[0].split(" ")]
+stone_map = dict(Counter(stone_list))
 
 
 @cache
