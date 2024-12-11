@@ -4,10 +4,10 @@ from typing import Callable, TypeVar, Generator, Optional
 T = TypeVar("T")
 
 
-def split_by(the_list: list[T], element: T) -> Generator[list[T], None, None]:
+def split_by(the_list: list[T], separator: T) -> Generator[list[T], None, None]:
     start_idx = 0
-    for idx, line in enumerate(the_list):
-        if line == element:
+    for idx, elem in enumerate(the_list):
+        if elem == separator:
             yield the_list[start_idx:idx]
             start_idx = idx + 1
     yield the_list[start_idx:]

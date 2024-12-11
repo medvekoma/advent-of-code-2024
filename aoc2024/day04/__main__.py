@@ -1,5 +1,5 @@
 import numpy as np
-from aoc2024.utils.matrices import Matrix
+from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_lines
 
 
