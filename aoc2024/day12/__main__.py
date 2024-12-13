@@ -1,6 +1,7 @@
 from typing import Optional
 import itertools
-from collections import Counter, defaultdict
+from collections import defaultdict
+from aoc2024.utils.benchmark import timer
 from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_lines
 
@@ -42,36 +43,62 @@ class Day12:
                 return cell
         return None
 
-    type Fence = tuple[int, int, bool]  # (x, y, is_horizontal; direction is always right or down)
+    type Fence = tuple[tuple[int, int], tuple[int, int]]  # Directed segments, clockwise
 
     def fences(self, cell: Cell) -> list[Fence]:
         r, c = cell
         return [
-            (r, c, True),
-            (r, c, False),
-            (r + 1, c, True),
-            (r, c + 1, False),
+            ((r + 0, c + 0), (r + 0, c + 1)),
+            ((r + 0, c + 1), (r + 1, c + 1)),
+            ((r + 1, c + 1), (r + 1, c + 0)),
+            ((r + 1, c + 0), (r + 0, c + 0)),
         ]
+
+    def segmenter(self, fence: Fence):
+        return tuple(sorted(fence))
 
     def bounding_fences(self, cells: set[Cell]) -> set[Fence]:
         all_fences = [fence for cell in cells for fence in self.fences(cell)]
-        counter = Counter(all_fences)
-        return {fence for fence, count in counter.items() if count == 1}
+        fence_dict = defaultdict(list)
+        for fence in all_fences:
+            fence_dict[self.segmenter(fence)].append(fence)
+        return {fences[0] for fences in fence_dict.values() if len(fences) == 1}
+
+    def direction(self, fence: Fence) -> tuple[int, int]:
+        (r1, c1), (r2, c2) = fence
+        return (r2 - r1, c2 - c1)
+
+    def get_sides(self, fences: set[Fence]) -> int:
+        direction_groups = itertools.groupby(sorted(fences, key=self.direction), key=self.direction)
+        sides = 0
+        for direction, dir_fences in direction_groups:
+            dir_idx = 0 if direction[0] == 0 else 1
+            cells = [fence[0] for fence in dir_fences]
+            for _, cell_group in itertools.groupby(sorted(cells, key=lambda c: c[dir_idx]), key=lambda c: c[dir_idx]):
+                indices = [cell[1 - dir_idx] for cell in cell_group]
+                diffs = {v - i for i, v in enumerate(sorted(indices))}
+                sides += len(diffs)
+        return sides
 
     def parts(self):
         while cell := self.find_ungrouped_cell():
             self.setup_group(cell)
 
         price1 = 0
+        price2 = 0
         for cells in self.group_cell_map.values():
             fences = self.bounding_fences(cells)
             price1 += len(cells) * len(fences)
+            sides = self.get_sides(fences)
+            price2 += len(cells) * sides
         print(f"part1: {price1}")
-        # print(f"part2: {price2}")  # 886378 is too low; 1055706 is too high
+        print(f"part2: {price2}")  # 886378 is too low; 1055706 is too high -- 897702
 
 
+@timer
 def parts():
-    Day12().parts()
+    day12 = Day12()
+    day12.parts()
 
 
 parts()
