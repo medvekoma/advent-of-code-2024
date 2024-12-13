@@ -1,6 +1,7 @@
 from typing import Optional
 import itertools
 from collections import Counter, defaultdict
+from aoc2024.utils.benchmark import timer
 from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_lines
 
@@ -42,20 +43,21 @@ class Day12:
                 return cell
         return None
 
-    type Fence = tuple[int, int, bool]  # (x, y, is_horizontal; direction is always right or down)
+    type Fence = tuple[tuple[int, int], tuple[int, int]]  # Directed segments, clockwise
 
     def fences(self, cell: Cell) -> list[Fence]:
         r, c = cell
         return [
-            (r, c, True),
-            (r, c, False),
-            (r + 1, c, True),
-            (r, c + 1, False),
+            ((r + 0, c + 0), (r + 0, c + 1)),
+            ((r + 0, c + 1), (r + 1, c + 1)),
+            ((r + 1, c + 1), (r + 1, c + 0)),
+            ((r + 1, c + 0), (r + 0, c + 0)),
         ]
 
     def bounding_fences(self, cells: set[Cell]) -> set[Fence]:
         all_fences = [fence for cell in cells for fence in self.fences(cell)]
-        counter = Counter(all_fences)
+        segmenter = lambda f: tuple(sorted(f))
+        counter = Counter(segmenter(fence) for fence in all_fences)
         return {fence for fence, count in counter.items() if count == 1}
 
     def parts(self):
@@ -70,6 +72,7 @@ class Day12:
         # print(f"part2: {price2}")  # 886378 is too low; 1055706 is too high
 
 
+@timer
 def parts():
     Day12().parts()
 
