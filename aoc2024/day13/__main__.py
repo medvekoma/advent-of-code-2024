@@ -1,19 +1,18 @@
-import re
 from typing import Iterable
 from aoc2024.utils.benchmark import timer
-from aoc2024.utils.collections import split_by
+from aoc2024.utils.collections import parse_ints, split_by
 from aoc2024.utils.reader import read_lines
 
 lines = read_lines(is_test=False)
 
-type Cell = tuple[int, int]
-type Group = tuple[Cell, Cell, Cell]
+type Cell = list[int]  # always contains two elements: x and y
+type Group = list[Cell]  # always contains three elements: A, B and W (winning target)
 
 
 class Day13:
     def __init__(self) -> None:
         self.groups: list[Group] = [
-            tuple(tuple(map(int, re.findall(r"\d+", line))) for line in block)
+            [parse_ints(line) for line in block]
             for block in split_by(lines, "")
             #
         ]
@@ -24,19 +23,19 @@ class Day13:
         divisor = by * ax - bx * ay
         if divisor == 0:
             if divident == 0:
-                # possible more solutions
-                asteps, amod = divmod(wx, ax)
-                if amod == 0:
-                    yield (asteps, 0)
-                bsteps, bmod = divmod(wx, bx)
-                if bmod == 0:
-                    yield (0, bsteps)
+                # possibly more solutions
+                steps, mod = divmod(wx, ax)
+                if mod == 0:
+                    yield [steps, 0]
+                steps, mod = divmod(wx, bx)
+                if mod == 0:
+                    yield [0, steps]
         else:
-            b, bmod = divmod(divident, divisor)
-            if bmod == 0:
-                a, amod = divmod(wx - b * bx, ax)
-                if amod == 0:
-                    yield a, b
+            b, mod = divmod(divident, divisor)
+            if mod == 0:
+                a, mod = divmod(wx - b * bx, ax)
+                if mod == 0:
+                    yield [a, b]
 
     def price(self, cell: Cell) -> int:
         return 3 * cell[0] + 1 * cell[1]
@@ -57,7 +56,7 @@ class Day13:
         ]
         price = 0
         for group in new_groups:
-            solutions = [(a, b) for a, b in self.solve_group(group)]
+            solutions = list(self.solve_group(group))
             if solutions:
                 price += min(self.price(cell) for cell in solutions)
         print(f"part2: {price}")
