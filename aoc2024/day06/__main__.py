@@ -1,6 +1,6 @@
 from typing import Optional
 from aoc2024.utils.reader import read_lines
-from aoc2024.utils.timer import timer
+from aoc2024.utils.benchmark import timer
 
 lines = read_lines(is_test=False)
 type Cell = tuple[int, int]

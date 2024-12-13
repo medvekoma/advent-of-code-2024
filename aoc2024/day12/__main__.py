@@ -10,7 +10,7 @@ lines = read_lines(is_test=False)
 
 
 class Day12:
-    def __init__(self):
+    def __init__(self) -> None:
         self.matrix = Matrix.from_lines(lines)
         self.group_generator = itertools.count(start=1)
         self.cell_group_map: dict[Cell, int] = {}
