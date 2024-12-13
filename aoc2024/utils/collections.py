@@ -38,3 +38,7 @@ def remove_at(lst: list, index: int) -> list:
 def parse_lines(lines: list[str], pattern: str) -> list[tuple]:
     matches = [re.search(pattern, line) for line in lines]
     return [match.groups() for match in matches if match]
+
+
+def parse_ints(line: str) -> list[int]:
+    return [int(s) for s in re.findall(r"\d+", line)]
