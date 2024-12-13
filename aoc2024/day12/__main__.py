@@ -1,8 +1,6 @@
 from typing import Optional
-import numpy as np
 import itertools
 from collections import Counter, defaultdict
-from functools import cache
 from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_lines
 
