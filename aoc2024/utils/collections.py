@@ -2,6 +2,8 @@ import re
 from typing import Callable, TypeVar, Generator, Optional
 
 T = TypeVar("T")
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 def split_by(the_list: list[T], separator: T) -> Generator[list[T], None, None]:
@@ -41,4 +43,23 @@ def parse_lines(lines: list[str], pattern: str) -> list[tuple]:
 
 
 def parse_ints(line: str) -> list[int]:
-    return [int(s) for s in re.findall(r"\d+", line)]
+    return [int(s) for s in re.findall(r"\-?\d+", line)]
+
+
+def identity(x):
+    return x
+
+
+def group_list(
+    lst: list[T],
+    key: Callable[[T], K] = identity,
+    value: Callable[[T], V] = identity,
+) -> dict[K, list[V]]:
+    result: dict[K, list[V]] = {}
+    for item in lst:
+        k = key(item)
+        v = value(item)
+        if k not in result:
+            result[k] = []
+        result[k].append(v)
+    return result
