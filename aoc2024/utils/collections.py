@@ -41,4 +41,4 @@ def parse_lines(lines: list[str], pattern: str) -> list[tuple]:
 
 
 def parse_ints(line: str) -> list[int]:
-    return [int(s) for s in re.findall(r"\d+", line)]
+    return [int(s) for s in re.findall(r"\-?\d+", line)]
