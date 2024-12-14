@@ -46,8 +46,6 @@ class Day14:
     def is_tree(self, robot_dict: RobotDict) -> bool:
         unique_counts = {len(velocities) for velocities in robot_dict.values()}
         return unique_counts == {1}
-        # overlaps = {cell for cell, velocities in robot_dict.items() if len(velocities) > 1}
-        # return len(overlaps) == 0
 
     def compare(self, a, b):
         return (a > b) - (a < b)
