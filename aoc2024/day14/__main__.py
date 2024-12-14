@@ -12,7 +12,7 @@ IS_TEST = False
 lines = read_lines(IS_TEST)
 
 type Cell = tuple[int, int]
-type Robot = tuple[Cell, Cell]
+type RobotDict = dict[Cell, list[Cell]]
 
 
 class Day14:
@@ -43,17 +43,9 @@ class Day14:
         for row in space:
             print("".join(row))
 
-    def is_tree(self, robot_dict: dict[Cell, list[Cell]]) -> bool:
-        cells = robot_dict.keys()
-        for row in range(self.shape[1]):
-            xlist = [x for x, y in cells if y == row]
-            if xlist:
-                xlist.sort()
-                rlist = list(reversed(xlist))
-                diffs = {r - l for l, r in zip(xlist, rlist)}
-                if max(diffs) > 3:
-                    return False
-        return True
+    def is_tree(self, robot_dict: RobotDict) -> bool:
+        multiple = {cell for cell, velocities in robot_dict.items() if len(velocities) > 1}
+        return len(multiple) == 0
 
     def compare(self, a, b):
         return (a > b) - (a < b)
@@ -72,19 +64,19 @@ class Day14:
     def part2(self) -> None:
         robot_dict = self.robot_dict
         steps = 0
-        while not self.is_tree(robot_dict):
-            robot_dict = self.move_robots(robot_dict, steps=1)
-            print(f"Step {steps}")
+        while True:
+            robot_dict = self.move_robots(robot_dict, 1)
             steps += 1
-
-        self.draw_robots(robot_dict.keys())
-        print(f"Part 2: {steps}")
+            if self.is_tree(robot_dict):
+                self.draw_robots(robot_dict.keys())
+                input(f"After {steps} steps. Continue?")
 
 
 @timer
 def parts():
     day = Day14()
     day.part1()
+    day.part2()
 
 
 parts()
