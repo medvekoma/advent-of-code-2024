@@ -74,6 +74,7 @@ class Day12:
         for direction, dir_fences in direction_groups:
             dir_idx = 0 if direction[0] == 0 else 1
             cells = [fence[0] for fence in dir_fences]
+            # pylint: disable=cell-var-from-loop
             for _, cell_group in itertools.groupby(sorted(cells, key=lambda c: c[dir_idx]), key=lambda c: c[dir_idx]):
                 indices = [cell[1 - dir_idx] for cell in cell_group]
                 diffs = {v - i for i, v in enumerate(sorted(indices))}

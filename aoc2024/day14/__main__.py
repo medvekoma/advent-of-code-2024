@@ -17,36 +17,24 @@ type Robot = tuple[Cell, Cell]
 
 class Day14:
     def __init__(self) -> None:
-        self.robots = [self.unpack(parse_ints(line)) for line in lines]
+        values = [parse_ints(line) for line in lines]
+        self.robot_dict = group_list(values, key=lambda v: (v[0], v[1]), value=lambda v: (v[2], v[3]))
         self.shape = (11, 7) if IS_TEST else (101, 103)
         self.middle = self.shape[0] // 2, self.shape[1] // 2
 
-    def unpack(self, values: list[int]) -> tuple[Cell, Cell]:
-        x, y, vx, vy = values
-        return (x, y), (vx, vy)
-
-    def move_robot(self, robot: Robot, steps: int) -> Robot:
-        (x, y), (vx, vy) = robot
+    def move_robot(self, pos: Cell, velo: Cell, steps: int) -> tuple[Cell, Cell]:
+        (x, y), (vx, vy) = pos, velo
         x = (x + steps * vx) % self.shape[0]
         y = (y + steps * vy) % self.shape[1]
         return (x, y), (vx, vy)
 
-    def compare(self, a, b):
-        return (a > b) - (a < b)
-
-    def part1(self) -> None:
-        robot_counter: dict[Cell, int] = defaultdict(int)
-        quadrant_counter: dict[Cell, int] = defaultdict(int)
-        for robot in self.robots:
-            robot = self.move_robot(robot, 100)
-            pos = robot[0]
-            robot_counter[pos] += 1
-            qx = self.compare(pos[0], self.middle[0])
-            qy = self.compare(pos[1], self.middle[1])
-            if qx != 0 and qy != 0:
-                quadrant_counter[(qx, qy)] += 1
-        result = prod(quadrant_counter.values())
-        print(f"Part 1: {result}")
+    def move_robots(self, robot_dict: dict[Cell, list[Cell]], steps: int) -> dict[Cell, list[Cell]]:
+        new_robot_dict: dict[Cell, list[Cell]] = defaultdict(list)
+        for pos, velocities in robot_dict.items():
+            for velo in velocities:
+                npos, nvelo = self.move_robot(pos, velo, steps)
+                new_robot_dict[npos].append(nvelo)
+        return new_robot_dict
 
     def draw_robots(self, positions: Iterable[Cell]) -> None:
         space = np.full((self.shape[1], self.shape[0]), " ", dtype=str)
@@ -67,18 +55,11 @@ class Day14:
                     return False
         return True
 
-    def move_robots(self, robot_dict: dict[Cell, list[Cell]], steps: int = 1) -> dict[Cell, list[Cell]]:
-        new_robot_dict: dict[Cell, list[Cell]] = defaultdict(list)
-        for pos, velocities in robot_dict.items():
-            for velo in velocities:
-                npos, nvelo = self.move_robot((pos, velo), steps)
-                new_robot_dict[npos].append(nvelo)
-        return new_robot_dict
+    def compare(self, a, b):
+        return (a > b) - (a < b)
 
-    def part1b(self) -> None:
-        robot_dict = group_list(self.robots, key=lambda x: x[0], value=lambda x: x[1])
-        for _ in range(100):
-            robot_dict = self.move_robots(robot_dict)
+    def part1(self) -> None:
+        robot_dict = self.move_robots(self.robot_dict, 100)
         qd: dict[Cell, int] = defaultdict(int)
         for (x, y), velocities in robot_dict.items():
             qx = self.compare(x, self.middle[0])
@@ -89,10 +70,10 @@ class Day14:
         print(f"Part 1: {result}")
 
     def part2(self) -> None:
-        robot_dict = group_list(self.robots, key=lambda x: x[0], value=lambda x: x[1])
+        robot_dict = self.robot_dict
         steps = 0
         while not self.is_tree(robot_dict):
-            robot_dict = self.move_robots(robot_dict)
+            robot_dict = self.move_robots(robot_dict, steps=1)
             print(f"Step {steps}")
             steps += 1
 
@@ -104,8 +85,6 @@ class Day14:
 def parts():
     day = Day14()
     day.part1()
-    print()
-    day.part1b()
 
 
 parts()
