@@ -1,5 +1,5 @@
 [MESSAGES CONTROL]
-disable=missing-docstring
+disable=missing-docstring, unused-import, too-few-public-methods
 
 [FORMAT]
 max-line-length=120
