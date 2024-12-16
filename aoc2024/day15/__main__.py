@@ -1,6 +1,6 @@
 from collections import Counter, defaultdict
 from math import prod
-from typing import Iterable
+from typing import Iterable, Optional
 
 import numpy as np
 from aoc2024.utils.benchmark import timer
@@ -25,30 +25,6 @@ class Day:
             "<": (0, -1),
         }
 
-    def move(self, pos: Pos2D, ori: str) -> Pos2D:
-        cursor = pos
-        buffer = []
-        while True:
-            char = self.matrix[cursor]
-            if char == "#":
-                break
-            buffer.append(char)
-            if char == ".":
-                break
-            cursor = cursor.add(self.offsets[ori])
-        counter = Counter(buffer)
-        if not counter.get("."):
-            return pos
-        buffer = [ch for ch in [".", "@", "O"] for _ in range(counter.get(ch, 0))]
-        result = pos
-        cursor = pos
-        for ch in buffer:
-            if ch == "@":
-                result = cursor
-            self.matrix[cursor] = ch
-            cursor = cursor.add(self.offsets[ori])
-        return result
-
     def price1(self) -> int:
         price = 0
         for r, c in self.matrix.cells():
@@ -56,17 +32,26 @@ class Day:
                 price += 100 * r + c
         return price
 
+    def moverec(self, pos: Pos2D, ori: str) -> Optional[Pos2D]:
+        nextpos = pos.add(self.offsets[ori])
+        nextchar = self.matrix[nextpos]
+        if nextchar == "#":
+            return None
+        if nextchar == "." or self.moverec(nextpos, ori):
+            self.matrix[nextpos] = self.matrix[pos]
+            self.matrix[pos] = "."
+            return nextpos
+        return None
+
     def part1(self) -> None:
-        matches = np.where(self.matrix == "@")
-        pos = Pos2D(matches[0][0], matches[1][0])
+        pos = self.matrix.findall("@")[0]
         for ori in self.sequence:
-            pos = self.move(pos, ori)
+            pos = self.moverec(pos, ori) or pos
         print(f"Part 1: {self.price1()}")
 
 
 def parts():
-    day = Day()
-    day.part1()
+    Day().part1()
 
 
 parts()
