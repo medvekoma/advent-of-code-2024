@@ -9,6 +9,16 @@ def identity_string(value: str) -> str:
     return value
 
 
+class Pos2D(tuple[int, int]):
+    def __new__(cls, *args):
+        if len(args) == 1 and isinstance(args[0], (tuple, list)) and len(args[0]) == 2:
+            return super().__new__(cls, args[0])
+        return super().__new__(cls, args)
+
+    def add(self, offset: tuple[int, int]) -> "Pos2D":
+        return Pos2D((self[0] + offset[0], self[1] + offset[1]))
+
+
 class Matrix(np.ndarray):
     def __new__(cls, values: list[list[T]]):
         obj = np.array(values).view(cls)
@@ -35,3 +45,11 @@ class Matrix(np.ndarray):
             for c in range(self.shape[1])
             #
         )
+
+    def print_chars(self):
+        for row in self:
+            print("".join(row))
+
+    def findall(self, value: T) -> list[Pos2D]:
+        ridx, cidx = np.where(self == value)
+        return [Pos2D(r, c) for r, c in zip(ridx, cidx)]
