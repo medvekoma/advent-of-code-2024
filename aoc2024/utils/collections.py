@@ -6,13 +6,17 @@ K = TypeVar("K")
 V = TypeVar("V")
 
 
-def split_by(the_list: list[T], separator: T) -> Generator[list[T], None, None]:
+def split_by_func(the_list: list[T], condition: Callable[[T], bool]) -> Generator[list[T], None, None]:
     start_idx = 0
     for idx, elem in enumerate(the_list):
-        if elem == separator:
+        if condition(elem):
             yield the_list[start_idx:idx]
             start_idx = idx + 1
     yield the_list[start_idx:]
+
+
+def split_by(the_list: list[T], separator: T) -> Generator[list[T], None, None]:
+    return split_by_func(the_list, lambda x: x == separator)
 
 
 def split_into(collection: list[T], size: int) -> list[list[T]]:
