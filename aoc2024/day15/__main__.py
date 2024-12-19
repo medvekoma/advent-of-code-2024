@@ -1,10 +1,6 @@
-from collections import Counter, defaultdict, deque
-from math import prod
-from typing import Iterable, Optional
+from typing import Optional
 
-import numpy as np
-from aoc2024.utils.benchmark import timer
-from aoc2024.utils.collections import group_list, parse_ints, split_by, split_by_func
+from aoc2024.utils.collections import split_by
 from aoc2024.utils.mynumpy import Matrix, Pos2D
 from aoc2024.utils.reader import read_lines
 
