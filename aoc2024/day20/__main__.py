@@ -72,9 +72,7 @@ class Day:
 
     def part1(self) -> None:
         length = nwx.shortest_path_length(self.graph, self.start, self.end)
-        print(f"length: {length}")
         shortcuts = self.collect_shortcuts()
-        print(len(shortcuts))
         filtered = self.filter_long_paths_parallel(shortcuts)
         edges = []
         results = []
@@ -89,12 +87,19 @@ class Day:
             new_length = nwx.shortest_path_length(self.graph, self.start, self.end)
             if length - new_length >= self.treshold:
                 results.append(length - new_length)
-            # print(f"new_length: {new_length}, diff: {length - new_length}")
         print(f"Part 1: {len(results)}")
-        # result = len(path_length) - 1
-        # print(f"Part 1: {result}")
+
+    def part2(self) -> None:
+        paths = nwx.all_simple_paths(self.graph, self.start, self.end)
+        # single path of 9412 length
+        print(f"Part 2: {list(paths)[0]}")
+
+
+@timer
+def main():
+    day = Day()
+    day.part1()
 
 
 if __name__ == "__main__":
-    day = Day()
-    day.part1()
+    main()
