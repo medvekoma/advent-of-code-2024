@@ -29,7 +29,7 @@ class Day:
                 nx, ny = x + dx, y + dy
                 if nx >= self.size or ny >= self.size or (nx, ny) in first_blocks:
                     continue
-                self.graph.add_edge((x, y), (x + dx, y + dy))
+                self.graph.add_edge((x, y), (nx, ny))
 
     @timer
     def part1(self) -> None:
