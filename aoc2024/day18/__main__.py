@@ -39,8 +39,8 @@ class Day:
 
     def get_path_length(self) -> Optional[int]:
         try:
-            path_length = nwx.dijkstra_path_length(self.graph, (0, 0), (self.size - 1, self.size - 1))
-            return path_length
+            path_length = nwx.bidirectional_shortest_path(self.graph, (0, 0), (self.size - 1, self.size - 1))
+            return len(path_length) - 1
         except nwx.NetworkXNoPath:
             return None
 
