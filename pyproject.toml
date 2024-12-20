@@ -8,12 +8,14 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 numpy = "^2.1.3"
+networkx = "^3.4.2"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
 pylint = "^3.3.2"
 mypy = "^1.13.0"
+types-networkx = "^3.4.2.20241115"
 
 [build-system]
 requires = ["poetry-core"]
