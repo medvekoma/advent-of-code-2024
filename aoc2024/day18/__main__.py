@@ -14,7 +14,7 @@ class Day:
     def __init__(self) -> None:
         self.size = 7 if IS_TEST else 71
         self.limit = 12 if IS_TEST else 1024
-        num_lines = [parse_ints(line) for line in lines[: self.limit]]
+        num_lines = [parse_ints(line) for line in lines]
         self.blocks = [Pos2D(x, y) for x, y in num_lines]
         self.graph = nx.Graph()
 
@@ -26,7 +26,7 @@ class Day:
                     for dx, dy in forward_neighbors:
                         nx, ny = x + dx, y + dy
                         if 0 <= nx < self.size and 0 <= ny < self.size:
-                            if not ((nx, ny) in self.blocks):
+                            if not ((nx, ny) in self.blocks[: self.limit]):
                                 self.graph.add_edge((x, y), (x + dx, y + dy))
 
     def draw_blocks(self) -> None:
