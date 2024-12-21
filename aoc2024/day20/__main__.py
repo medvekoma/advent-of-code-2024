@@ -1,17 +1,13 @@
-from collections import Counter, defaultdict
 from itertools import combinations
-from math import prod
-from multiprocessing import Pool
 from typing import Iterable, Optional
 
-import numpy as np
 import networkx as nwx
 from aoc2024.utils.benchmark import timer
-from aoc2024.utils.collections import group_list, parse_ints
 from aoc2024.utils.mynumpy import Matrix, Pos2D
 from aoc2024.utils.reader import read_lines
 
-type BlockSourceTarget = tuple[Pos2D, Pos2D, Pos2D]
+type Cell = tuple[int, int]
+type BlockSourceTarget = tuple[Cell, Cell, Cell]
 
 
 IS_TEST = False
@@ -42,7 +38,7 @@ class Day:
                 if self.matrix.get_value(npos) == ".":
                     self.graph.add_edge(pos, npos)
 
-    def collect_shortcuts(self) -> set[BlockSourceTarget]:
+    def collect_shortcuts(self) -> list[BlockSourceTarget]:
         result: list[BlockSourceTarget] = []
         for pos in self.blocks:
             empty_neighbors = {
@@ -56,7 +52,7 @@ class Day:
                     result.append((pos, n1, n2))
         return result
 
-    def potential_block(self, bst: BlockSourceTarget) -> Optional[Pos2D]:
+    def potential_block(self, bst: BlockSourceTarget) -> Optional[Cell]:
         block, source, target = bst
         try:
             path_length = nwx.shortest_path_length(self.graph, source, target)
@@ -64,17 +60,16 @@ class Day:
         except nwx.NetworkXNoPath:
             return None
 
-    def filter_long_paths_parallel(self, lbst: list[BlockSourceTarget]) -> set[Pos2D]:
+    def filter_long_paths_parallel(self, lbst: list[BlockSourceTarget]) -> set[Cell]:
         blocks = {self.potential_block(bst) for bst in lbst}
-        # with Pool(processes=8) as pool:
-        #     blocks = pool.map(self.potential_block, (bst for bst in lbst))
         return {block for block in blocks if block is not None}
 
+    @timer
     def part1(self) -> None:
         length = nwx.shortest_path_length(self.graph, self.start, self.end)
         shortcuts = self.collect_shortcuts()
         filtered = self.filter_long_paths_parallel(shortcuts)
-        edges = []
+        edges: list[tuple[Cell, Cell]] = []
         results = []
         for block in filtered:
             free_neighbors = [n for n in self.matrix.neighbors_of(block) if self.matrix[n] == "."]
@@ -89,16 +84,28 @@ class Day:
                 results.append(length - new_length)
         print(f"Part 1: {len(results)}")
 
+    @timer
     def part2(self) -> None:
-        paths = nwx.all_simple_paths(self.graph, self.start, self.end)
-        # single path of 9412 length
-        print(f"Part 2: {list(paths)[0]}")
+        def get_shortcut_length(pos1: Pos2D, pos2: Pos2D) -> int:
+            return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+        path = nwx.shortest_path(self.graph, self.start, self.end)
+        result = 0
+        for i1 in range(len(path) - self.treshold):
+            for i2 in range(i1 + 1 + self.treshold, len(path)):
+                pos1 = path[i1]
+                pos2 = path[i2]
+                shortcut_length = get_shortcut_length(pos1, pos2)
+                winning = i2 - i1 - shortcut_length
+                if shortcut_length <= 20 and winning >= self.treshold:
+                    result += 1
+        print(f"Part 2: {result}")
 
 
-@timer
 def main():
     day = Day()
     day.part1()
+    day.part2()
 
 
 if __name__ == "__main__":

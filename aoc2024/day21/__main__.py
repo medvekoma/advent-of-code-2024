@@ -14,15 +14,16 @@ lines = read_lines(IS_TEST)
 
 class Day:
     def __init__(self) -> None:
-        pass
+        self.lines = lines
 
     def part1(self) -> None:
-        pass
+        print(self.lines)
 
 
-def parts():
+def main():
     day = Day()
     day.part1()
 
 
-parts()
+if __name__ == "__main__":
+    main()
