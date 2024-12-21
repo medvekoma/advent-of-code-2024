@@ -38,13 +38,19 @@ class Matrix(np.ndarray):
         ]
         return neighbors
 
-    def cells(self) -> Iterable[tuple[int, int]]:
+    def cells(self) -> Iterable[Pos2D]:
         yield from (
-            (r, c)
+            Pos2D(r, c)
             for r in range(self.shape[0])
             for c in range(self.shape[1])
             #
         )
+
+    def has_cell(self, cell: tuple[int, int]) -> bool:
+        return 0 <= cell[0] < self.shape[0] and 0 <= cell[1] < self.shape[1]
+
+    def get_value(self, pos: Pos2D) -> Optional[T]:
+        return self[pos] if self.has_cell(pos) else None
 
     def print_chars(self):
         for row in self:
