@@ -21,10 +21,11 @@ class PadGraph:
         file_name = f"{name}.txt"
         pad_lines = read_file(file_name)
         self.matrix = Matrix.from_lines(pad_lines)
-        self.graph: nwx.DiGraph = nwx.DiGraph()
-        self.init_graph()
+        self.graph = self.build_graph()
+        self.paths_map = self.build_paths_map()
 
-    def init_graph(self) -> None:
+    def build_graph(self) -> nwx.DiGraph:
+        graph = nwx.DiGraph()
         neighbor_map = {  # is_horz: (r, c)
             True: (0, 1),
             False: (1, 0),
@@ -38,23 +39,26 @@ class PadGraph:
                 that = self.matrix.get_value(npos)
                 if that in [" ", None]:
                     continue
-                self.graph.add_edge(this, that, label=">" if is_horz else "v")
-                self.graph.add_edge(that, this, label="<" if is_horz else "^")
-        self.paths_map = {
-            (source, target): self.get_paths(source, target)
+                graph.add_edge(this, that, label=">" if is_horz else "v")
+                graph.add_edge(that, this, label="<" if is_horz else "^")
+        return graph
+
+    def build_paths_map(self) -> dict[tuple[str, str], list[str]]:
+        def get_paths(source: str, target: str) -> list[str]:
+            paths = nwx.all_shortest_paths(self.graph, source, target)
+            result = []
+            for path in paths:
+                labels = [self.graph[path[i]][path[i + 1]]["label"] for i in range(len(path) - 1)]
+                label_string = "".join(labels) + "A"
+                result.append(label_string)
+            return result
+
+        return {
+            (source, target): get_paths(source, target)
             for source in self.graph.nodes
             for target in self.graph.nodes
             #
         }
-
-    def get_paths(self, source: str, target: str) -> list[str]:
-        paths = nwx.all_shortest_paths(self.graph, source, target)
-        result = []
-        for path in paths:
-            labels = [self.graph[path[i]][path[i + 1]]["label"] for i in range(len(path) - 1)]
-            label_string = "".join(labels) + "A"
-            result.append(label_string)
-        return result
 
 
 class Pad:
@@ -92,11 +96,11 @@ class Day:
         self.keygraph = PadGraph("keypad")
         self.numpad = Pad(self.numgraph)
         self.keypad1 = Pad(self.keygraph)
-        self.keypad2 = Pad(self.keygraph)
-        self.keypad3 = Pad(self.keygraph)
+        # self.keypad2 = Pad(self.keygraph)
+        # self.keypad3 = Pad(self.keygraph)
 
     def get_tripple_press_length(self, source: str, target: str) -> int:
-        paths = self.keygraph.get_paths(source, target)
+        paths = self.keygraph.paths_map.get((source, target))
         paths = self.keypad1.push_buttons_list(paths)
         # paths = self.keypad2.push_buttons_list(paths)
         # paths = self.keypad3.push_buttons_list(paths)
