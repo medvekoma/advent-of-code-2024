@@ -1,9 +1,9 @@
 import numpy as np
 from aoc2024.utils.mynumpy import Matrix
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 
-lines = read_lines()
+lines = read_input()
 
 matrix = Matrix.from_lines(lines)
 rows, cols = matrix.shape

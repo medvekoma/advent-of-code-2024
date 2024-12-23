@@ -1,8 +1,8 @@
 import numpy as np
 from aoc2024.utils.mynumpy import Matrix
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 
 matrix = Matrix.from_lines(lines, converter=int)
 

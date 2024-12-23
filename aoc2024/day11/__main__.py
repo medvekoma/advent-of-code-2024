@@ -1,8 +1,8 @@
 from collections import Counter
 from functools import cache
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 stone_list = [int(stone) for stone in lines[0].split(" ")]
 stone_map = dict(Counter(stone_list))
 
