@@ -96,40 +96,40 @@ class Day:
         self.keygraph = PadGraph("keypad")
         self.numpad = Pad(self.numgraph)
         self.keypad1 = Pad(self.keygraph)
-        # self.keypad2 = Pad(self.keygraph)
-        # self.keypad3 = Pad(self.keygraph)
 
-    def get_tripple_press_length(self, source: str, target: str) -> int:
+    def keypad_multipress_length(self, source: str, target: str, presses: int) -> int:
         paths = self.keygraph.paths_map.get((source, target))
-        paths = self.keypad1.push_buttons_list(paths)
-        # paths = self.keypad2.push_buttons_list(paths)
-        # paths = self.keypad3.push_buttons_list(paths)
+        for _ in range(presses - 2):
+            paths = self.keypad1.push_buttons_list(paths)
         return len(paths[0])
 
-    def part1(self) -> None:
-        tripple_path_lengths = {
-            (source, target): self.get_tripple_press_length(source, target)
+    def build_multipress_map(self, presses: int) -> dict[tuple[str, str], int]:
+        result = {
+            (source, target): self.keypad_multipress_length(source, target, presses)
             for source in self.keygraph.graph.nodes
             for target in self.keygraph.graph.nodes
             #
         }
+        return result
 
-        def get_tripple_length(line: str) -> int:
-            line = "A" + line
-            result = 0
-            for i in range(len(line) - 1):
-                source = line[i]
-                target = line[i + 1]
-                result += tripple_path_lengths[(source, target)]
-            return result
+    def push_buttons(self, line: str, multipress_map: dict[tuple[str, str], int]) -> int:
+        line = "A" + line
+        result = 0
+        for i in range(len(line) - 1):
+            source = line[i]
+            target = line[i + 1]
+            result += multipress_map[(source, target)]
+        return result
 
-        def get_tripple_length2(lines: list[str]) -> int:
-            return min(get_tripple_length(line) for line in lines)
+    def push_buttons_list(self, lines: list[str], multipress_map: dict[tuple[str, str], int]) -> int:
+        return min(self.push_buttons(line, multipress_map) for line in lines)
 
+    def part1(self) -> None:
+        tripple_path_lengths = self.build_multipress_map(3)
         result = 0
         for line in lines:
             paths = self.numpad.push_buttons(line)
-            length = get_tripple_length2(paths)
+            length = self.push_buttons_list(paths, tripple_path_lengths)
             result += int(line[0:3]) * length
         print(f"Part 1: {result}")
 
