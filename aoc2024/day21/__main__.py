@@ -99,7 +99,7 @@ class Day:
 
     def keypad_multipress_length(self, source: str, target: str, presses: int) -> int:
         paths = self.keygraph.paths_map.get((source, target))
-        for _ in range(presses - 2):
+        for _ in range(presses - 1):
             paths = self.keypad1.push_buttons_list(paths)
         return len(paths[0])
 
@@ -125,13 +125,22 @@ class Day:
         return min(self.push_buttons(line, multipress_map) for line in lines)
 
     def part1(self) -> None:
-        tripple_path_lengths = self.build_multipress_map(3)
+        tripple_path_lengths = self.build_multipress_map(2)
         result = 0
         for line in lines:
             paths = self.numpad.push_buttons(line)
             length = self.push_buttons_list(paths, tripple_path_lengths)
             result += int(line[0:3]) * length
         print(f"Part 1: {result}")
+
+    def part2(self) -> None:
+        tripple_path_lengths = self.build_multipress_map(25)
+        result = 0
+        for line in lines:
+            paths = self.numpad.push_buttons(line)
+            length = self.push_buttons_list(paths, tripple_path_lengths)
+            result += int(line[0:3]) * length
+        print(f"Part 2: {result}")
 
 
 def main():
