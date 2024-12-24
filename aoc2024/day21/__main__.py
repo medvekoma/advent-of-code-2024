@@ -66,11 +66,26 @@ class Pad:
         self.graph = graph
         self.cursor = "A"
 
-    def push_buttons(self, sequence: str) -> list[str]:
+    def split_at_A(self, sequence: str) -> list[str]:
+        parts = sequence.split("A")[:-1]
+        return [part + "A" for part in parts]
+
+    def push_button_short(self, sequence: str) -> list[str]:
         label_lists = []
         for button in sequence:
             label_lists.append(self.graph.paths_map[(self.cursor, button)])
             self.cursor = button
+        label_sequences = [
+            "".join(labels)
+            for labels in product(*label_lists)
+            #
+        ]
+        return label_sequences
+
+    def push_buttons(self, sequence: str) -> list[str]:
+        label_lists = []
+        for short_sequence in self.split_at_A(sequence):
+            label_lists.append(self.push_button_short(short_sequence))
         label_sequences = [
             "".join(labels)
             for labels in product(*label_lists)
@@ -125,22 +140,13 @@ class Day:
         return min(self.push_buttons(line, multipress_map) for line in lines)
 
     def part1(self) -> None:
-        tripple_path_lengths = self.build_multipress_map(2)
+        multipress_length = self.build_multipress_map(2)
         result = 0
         for line in lines:
             paths = self.numpad.push_buttons(line)
-            length = self.push_buttons_list(paths, tripple_path_lengths)
+            length = self.push_buttons_list(paths, multipress_length)
             result += int(line[0:3]) * length
         print(f"Part 1: {result}")
-
-    def part2(self) -> None:
-        tripple_path_lengths = self.build_multipress_map(25)
-        result = 0
-        for line in lines:
-            paths = self.numpad.push_buttons(line)
-            length = self.push_buttons_list(paths, tripple_path_lengths)
-            result += int(line[0:3]) * length
-        print(f"Part 2: {result}")
 
 
 def main():
