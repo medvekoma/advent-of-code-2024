@@ -1,158 +1,149 @@
-from collections import defaultdict
-from functools import lru_cache
+from collections import Counter
+from functools import cache, lru_cache
 from itertools import product
-from math import prod
+import json
 from typing import Iterable
-
-import numpy as np
 import networkx as nwx
 from aoc2024.utils.benchmark import timer
-from aoc2024.utils.collections import group_list, parse_ints
 from aoc2024.utils.mynumpy import Matrix
-from aoc2024.utils.reader import read_input, read_file
+from aoc2024.utils.reader import read_file, read_input
+
 
 IS_TEST = False
-
 lines = read_input(IS_TEST)
 
 
-class PadGraph:
-    def __init__(self, name: str) -> None:
-        file_name = f"{name}.txt"
-        pad_lines = read_file(file_name)
-        self.matrix = Matrix.from_lines(pad_lines)
-        self.graph = self.build_graph()
-        self.paths_map = self.build_paths_map()
-
-    def build_graph(self) -> nwx.DiGraph:
-        graph = nwx.DiGraph()
-        neighbor_map = {  # is_horz: (r, c)
-            True: (0, 1),
-            False: (1, 0),
-        }
-        for pos in self.matrix.cells():
-            this = self.matrix.get_value(pos)
-            if this == " ":
+def build_graph_dict(name: str) -> dict[tuple[str, str], list[str]]:
+    """For any button pair, return a list of possible optimal paths as a list of directions (^,>,<,v)."""
+    pad_lines = read_file(f"{name}.txt")
+    matrix = Matrix.from_lines(pad_lines)
+    graph: nwx.DiGraph = nwx.DiGraph()
+    neighbor_map = {  # is_horz: (r, c)
+        True: (0, 1),
+        False: (1, 0),
+    }
+    for pos in matrix.cells():
+        this = matrix.get_value(pos)
+        if this == " ":
+            continue
+        for is_horz, offset in neighbor_map.items():
+            npos = pos.add(offset)
+            that = matrix.get_value(npos)
+            if that in [" ", None]:
                 continue
-            for is_horz, offset in neighbor_map.items():
-                npos = pos.add(offset)
-                that = self.matrix.get_value(npos)
-                if that in [" ", None]:
-                    continue
-                graph.add_edge(this, that, label=">" if is_horz else "v")
-                graph.add_edge(that, this, label="<" if is_horz else "^")
-        return graph
-
-    def build_paths_map(self) -> dict[tuple[str, str], list[str]]:
-        def get_paths(source: str, target: str) -> list[str]:
-            paths = nwx.all_shortest_paths(self.graph, source, target)
-            result = []
-            for path in paths:
-                labels = [self.graph[path[i]][path[i + 1]]["label"] for i in range(len(path) - 1)]
-                label_string = "".join(labels) + "A"
-                result.append(label_string)
-            return result
-
-        return {
-            (source, target): get_paths(source, target)
-            for source in self.graph.nodes
-            for target in self.graph.nodes
-            #
-        }
-
-
-class Pad:
-    def __init__(self, graph: PadGraph) -> None:
-        self.graph = graph
-        self.cursor = "A"
-
-    def split_at_A(self, sequence: str) -> list[str]:
-        parts = sequence.split("A")[:-1]
-        return [part + "A" for part in parts]
-
-    def push_button_short(self, sequence: str) -> list[str]:
-        label_lists = []
-        for button in sequence:
-            label_lists.append(self.graph.paths_map[(self.cursor, button)])
-            self.cursor = button
-        label_sequences = [
-            "".join(labels)
-            for labels in product(*label_lists)
-            #
+            graph.add_edge(this, that, label=(">" if is_horz else "v"))
+            graph.add_edge(that, this, label=("<" if is_horz else "^"))
+    return {
+        (source, target): [
+            "".join([graph.get_edge_data(path[i], path[i + 1])["label"] for i in range(len(path) - 1)]) + "A"
+            for path in nwx.all_shortest_paths(graph, source, target)
         ]
-        return label_sequences
+        for source in graph.nodes
+        for target in graph.nodes
+    }
 
-    def push_buttons(self, sequence: str) -> list[str]:
-        label_lists = []
-        for short_sequence in self.split_at_A(sequence):
-            label_lists.append(self.push_button_short(short_sequence))
-        label_sequences = [
-            "".join(labels)
-            for labels in product(*label_lists)
-            #
+
+numpad_dict = build_graph_dict("numpad")
+# keypad_dict = build_graph_dict("keypad")
+
+keypad_dict = {
+    ("^", "^"): ["A"],
+    ("^", "A"): [">A"],
+    ("^", "v"): ["vA"],
+    ("^", ">"): ["v>A"],
+    ("^", "<"): ["v<A"],
+    ("A", "^"): ["<A"],
+    ("A", "A"): ["A"],
+    ("A", "v"): ["<vA"],
+    ("A", ">"): ["vA"],
+    ("A", "<"): ["v<<A"],
+    ("v", "^"): ["^A"],
+    ("v", "A"): ["^>A"],
+    ("v", "v"): ["A"],
+    ("v", ">"): [">A"],
+    ("v", "<"): ["<A"],
+    (">", "^"): ["<^A"],
+    (">", "A"): ["^A"],
+    (">", "v"): ["<A"],
+    (">", ">"): ["A"],
+    (">", "<"): ["<<A"],
+    ("<", "^"): [">^A"],
+    ("<", "A"): [">>^A"],
+    ("<", "v"): [">A"],
+    ("<", ">"): [">>A"],
+    ("<", "<"): ["A"],
+}
+
+
+def pad_step(chunk: str, pad_dict: dict[tuple[str, str], list[str]]) -> list[dict[str, int]]:
+    chunk = "A" + chunk
+    parts = [
+        pad_dict[(source, target)]
+        for source, target in list(zip(chunk, chunk[1:]))
+        #
+    ]
+    options_list = list(product(*parts))
+    return [dict(Counter(option)) for option in options_list]
+
+
+def numpad_step(chunk: str) -> list[dict[str, int]]:
+    return pad_step(chunk, numpad_dict)
+
+
+def keypad_step(chunk: str) -> list[dict[str, int]]:
+    return pad_step(chunk, keypad_dict)
+
+
+def keypad_iteration(options: list[dict[str, int]]) -> list[dict[str, int]]:
+    result = []
+    for option in options:
+        option_chunks = [
+            [
+                {k: v * count for k, v in next_chunk.items()}
+                for next_chunk in keypad_step(chunk)
+                #
+            ]
+            for chunk, count in option.items()
         ]
-        return label_sequences
-
-    def push_buttons_list(self, options: list[str]) -> list[str]:
-        options = [
-            labels
-            for option in options
-            for labels in self.push_buttons(option)
-            #
-        ]
-        min_length = len(min(options, key=len))
-        shortest_options = [option for option in options if len(option) == min_length]
-        return shortest_options
+        option_combinations = list(product(*option_chunks))
+        for option_combination in option_combinations:
+            res_dict: dict[str, int] = {}
+            for d in option_combination:
+                for k, v in d.items():
+                    res_dict[k] = res_dict.get(k, 0) + v
+            result.append(res_dict)
+    result = keep_shortest(result)
+    return result
 
 
-class Day:
-    def __init__(self) -> None:
-        self.numgraph = PadGraph("numpad")
-        self.keygraph = PadGraph("keypad")
-        self.numpad = Pad(self.numgraph)
-        self.keypad1 = Pad(self.keygraph)
-
-    def keypad_multipress_length(self, source: str, target: str, presses: int) -> int:
-        paths = self.keygraph.paths_map.get((source, target))
-        for _ in range(presses - 1):
-            paths = self.keypad1.push_buttons_list(paths)
-        return len(paths[0])
-
-    def build_multipress_map(self, presses: int) -> dict[tuple[str, str], int]:
-        result = {
-            (source, target): self.keypad_multipress_length(source, target, presses)
-            for source in self.keygraph.graph.nodes
-            for target in self.keygraph.graph.nodes
-            #
-        }
-        return result
-
-    def push_buttons(self, line: str, multipress_map: dict[tuple[str, str], int]) -> int:
-        line = "A" + line
-        result = 0
-        for i in range(len(line) - 1):
-            source = line[i]
-            target = line[i + 1]
-            result += multipress_map[(source, target)]
-        return result
-
-    def push_buttons_list(self, lines: list[str], multipress_map: dict[tuple[str, str], int]) -> int:
-        return min(self.push_buttons(line, multipress_map) for line in lines)
-
-    def part1(self) -> None:
-        multipress_length = self.build_multipress_map(2)
-        result = 0
-        for line in lines:
-            paths = self.numpad.push_buttons(line)
-            length = self.push_buttons_list(paths, multipress_length)
-            result += int(line[0:3]) * length
-        print(f"Part 1: {result}")
+def dict_len(d: dict[str, int]) -> int:
+    return sum(len(k) * v for k, v in d.items())
 
 
-def main():
-    day = Day()
-    day.part1()
+def keep_shortest(options: list[dict[str, int]]) -> list[dict[str, int]]:
+    min_len = min(dict_len(opt) for opt in options)
+    return [opt for opt in options if dict_len(opt) == min_len]
 
 
-if __name__ == "__main__":
-    main()
+def calculate_loops(loops: int) -> int:
+    result = 0
+    for line in lines:
+        opts = numpad_step(line)
+        for _ in range(loops):
+            opts = keypad_iteration(opts)
+        result += int(line[0:3]) * dict_len(opts[0])
+    return result
+
+
+def part1() -> None:
+    result = calculate_loops(2)
+    print(f"Part 1: {result}")
+
+
+def part2() -> None:
+    result = calculate_loops(25)
+    print(f"Part 2: {result}")
+
+
+part1()
+part2()
