@@ -1,9 +1,9 @@
 from collections import deque
 from dataclasses import dataclass
 from typing import Optional
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 
 
 def process_line(line: str) -> list[int]:

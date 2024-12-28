@@ -1,8 +1,8 @@
 from collections import defaultdict
 from aoc2024.utils.collections import parse_lines, partition, split_by
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 
 
 def is_good_list(pages: list[int], reverse_rule_dict: dict[int, set[int]]) -> bool:

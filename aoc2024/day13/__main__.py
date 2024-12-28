@@ -1,9 +1,9 @@
 from typing import Iterable
 from aoc2024.utils.benchmark import timer
 from aoc2024.utils.collections import parse_ints, split_by
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 
 type Cell = list[int]  # always contains two elements: x and y
 type Group = list[Cell]  # always contains three elements: A, B and W (winning target)

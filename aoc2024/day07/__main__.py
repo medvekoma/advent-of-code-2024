@@ -3,10 +3,10 @@ from operator import add, mul
 from itertools import product
 from typing import Callable, Iterable
 from aoc2024.utils.collections import partition
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 from aoc2024.utils.benchmark import timer
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 type Operator = Callable[[int, int], int]
 
 input_strings = [re.findall(r"\d+", line) for line in lines]

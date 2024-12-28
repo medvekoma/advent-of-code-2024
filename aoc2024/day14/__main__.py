@@ -5,11 +5,11 @@ from typing import Iterable
 import numpy as np
 from aoc2024.utils.benchmark import timer
 from aoc2024.utils.collections import group_list, parse_ints
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 IS_TEST = False
 
-lines = read_lines(IS_TEST)
+lines = read_input(IS_TEST)
 
 type Cell = tuple[int, int]
 type RobotDict = dict[Cell, list[Cell]]

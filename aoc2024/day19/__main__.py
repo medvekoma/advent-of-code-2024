@@ -1,11 +1,11 @@
 from functools import lru_cache
 
 from aoc2024.utils.collections import split_by
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 IS_TEST = False
 
-lines = read_lines(IS_TEST)
+lines = read_input(IS_TEST)
 
 
 class Day19:

@@ -1,11 +1,11 @@
 from collections import defaultdict
 import math
 from itertools import combinations
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 type Cell = tuple[int, int]
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 rows = len(lines)
 cols = len(lines[0])
 

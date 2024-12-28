@@ -1,12 +1,10 @@
 import networkx as nwx
 from aoc2024.utils.mynumpy import Matrix, Pos2D
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 IS_TEST = False
 
-lines = read_lines(IS_TEST)
-
-type Reindeer = tuple[Pos2D, bool]  # position, is_horizontal
+lines = read_input(IS_TEST)
 
 
 class Day:

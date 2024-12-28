@@ -3,11 +3,11 @@ import itertools
 from collections import defaultdict
 from aoc2024.utils.benchmark import timer
 from aoc2024.utils.mynumpy import Matrix
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 type Cell = tuple[int, int]
 
-lines = read_lines(is_test=False)
+lines = read_input(is_test=False)
 
 
 class Day12:

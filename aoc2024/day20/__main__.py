@@ -4,7 +4,7 @@ from typing import Iterable, Optional
 import networkx as nwx
 from aoc2024.utils.benchmark import timer
 from aoc2024.utils.mynumpy import Matrix, Pos2D
-from aoc2024.utils.reader import read_lines
+from aoc2024.utils.reader import read_input
 
 type Cell = tuple[int, int]
 type BlockSourceTarget = tuple[Cell, Cell, Cell]
@@ -12,7 +12,7 @@ type BlockSourceTarget = tuple[Cell, Cell, Cell]
 
 IS_TEST = False
 
-lines = read_lines(IS_TEST)
+lines = read_input(IS_TEST)
 
 
 class Day:
