@@ -28,27 +28,27 @@ class Operation:
 
 class Operators:
     @staticmethod
-    def and_op(a: int, b: int) -> int:
+    def and_func(a: int, b: int) -> int:
         return a & b
 
     @staticmethod
-    def or_op(a: int, b: int) -> int:
+    def or_func(a: int, b: int) -> int:
         return a | b
 
     @staticmethod
-    def xor_op(a: int, b: int) -> int:
+    def xor_func(a: int, b: int) -> int:
         return a ^ b
 
     from_name = {
-        "AND": and_op,
-        "OR": or_op,
-        "XOR": xor_op,
+        "AND": and_func,
+        "OR": or_func,
+        "XOR": xor_func,
     }
 
     to_symbol: dict[Callable[[int, int], int], str] = {
-        and_op: "&",
-        or_op: "|",
-        xor_op: "^",
+        and_func: "&",
+        or_func: "|",
+        xor_func: "^",
     }
 
 
