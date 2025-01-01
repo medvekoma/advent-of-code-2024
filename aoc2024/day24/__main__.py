@@ -1,19 +1,13 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from itertools import combinations
-from typing import Callable, Iterable, Optional
+from typing import Callable
 
-import networkx as nwx
-from aoc2024.utils.benchmark import timer
 from aoc2024.utils.collections import split_by
-from aoc2024.utils.mynumpy import Matrix, Pos2D
 from aoc2024.utils.reader import read_input
-
-type Cell = tuple[int, int]
-type BlockSourceTarget = tuple[Cell, Cell, Cell]
 
 
 IS_TEST = False
+REGISTER_COUNT = 46
 
 lines = read_input(IS_TEST)
 
@@ -32,51 +26,55 @@ class Operation:
     output: str
 
 
-type RegisterOperations = dict[str, list[Operation]]
+class Operators:
+    @staticmethod
+    def and_op(a: int, b: int) -> int:
+        return a & b
 
+    @staticmethod
+    def or_op(a: int, b: int) -> int:
+        return a | b
 
-def and_op(a: int, b: int) -> int:
-    return a & b
+    @staticmethod
+    def xor_op(a: int, b: int) -> int:
+        return a ^ b
 
+    from_name = {
+        "AND": and_op,
+        "OR": or_op,
+        "XOR": xor_op,
+    }
 
-def or_op(a: int, b: int) -> int:
-    return a | b
-
-
-def xor_op(a: int, b: int) -> int:
-    return a ^ b
-
-
-op_map = {
-    "AND": and_op,
-    "OR": or_op,
-    "XOR": xor_op,
-}
+    to_symbol: dict[Callable[[int, int], int], str] = {
+        and_op: "&",
+        or_op: "|",
+        xor_op: "^",
+    }
 
 
 class Day24:
     def __init__(self) -> None:
-        self.inputs = {}
-        self.register_ops: RegisterOperations = defaultdict(list)
+        self.init_values: dict[str, int] = {}
         self.registers: dict[str, int] = {}
-        self.output_dict: dict[str, Operation] = {}
+        self.ops_by_input: dict[str, list[Operation]] = defaultdict(list)
+        self.op_by_output: dict[str, Operation] = {}
 
-        input_lines, op_lines = split_by(lines, "")
-        for value in input_lines:
-            name, value = value.split(": ")
-            self.inputs[name] = int(value)
+        init_lines, op_lines = split_by(lines, "")
+        for init_line in init_lines:
+            name, value = init_line.split(": ")
+            self.init_values[name] = int(value)
 
         for op_line in op_lines:
             input1, op_str, input2, _, output = op_line.split()
-            op_func = op_map[op_str]
+            op_func = Operators.from_name[op_str]
             operation = Operation(Expression({input1, input2}, op_func), output)
-            self.register_ops[input1].append(operation)
-            self.register_ops[input2].append(operation)
-            self.output_dict[output] = operation
+            self.ops_by_input[input1].append(operation)
+            self.ops_by_input[input2].append(operation)
+            self.op_by_output[output] = operation
 
     def set_register(self, name: str, value: int) -> None:
         self.registers[name] = value
-        for operation in self.register_ops[name]:
+        for operation in self.ops_by_input[name]:
             expression = operation.expression
             input1, input2 = expression.inputs
             value1 = self.registers.get(input1, None)
@@ -85,7 +83,7 @@ class Day24:
                 self.set_register(operation.output, expression.op(value1, value2))
 
     def part1(self) -> None:
-        for reg, val in self.inputs.items():
+        for reg, val in self.init_values.items():
             self.set_register(reg, val)
         zregs = [
             (reg, val)
@@ -96,16 +94,10 @@ class Day24:
         binary = "".join([str(val) for _, val in reversed(sorted(zregs))])
         print(f"Part 1: {int(binary, 2)}")
 
-    op_dict: dict[Callable[[int, int], int], str] = {
-        and_op: "&",
-        or_op: "|",
-        xor_op: "^",
-    }
-
     def reg_expression(self, reg: str) -> str:
-        if reg not in self.output_dict:
+        if reg not in self.op_by_output:
             return reg
-        operation = self.output_dict[reg]
+        operation = self.op_by_output[reg]
         input1, input2 = operation.expression.inputs
         exp1 = self.reg_expression(input1)
         exp2 = self.reg_expression(input2)
@@ -113,10 +105,10 @@ class Day24:
             exp1 = f"({exp1})"
         if len(exp2) > 3:
             exp2 = f"({exp2})"
-        return f"{exp1} {self.op_dict[operation.expression.op]} {exp2}"
+        return f"{exp1} {Operators.to_symbol[operation.expression.op]} {exp2}"
 
-    def expressions(self) -> None:
-        for i in range(46):
+    def dump_expressions(self) -> None:
+        for i in range(REGISTER_COUNT):
             reg = f"z{i:02}"
             exp = self.reg_expression(reg)
             print(f"{reg}: {exp}")
@@ -125,4 +117,4 @@ class Day24:
 if __name__ == "__main__":
     day24 = Day24()
     day24.part1()
-    day24.expressions()
+    day24.dump_expressions()
