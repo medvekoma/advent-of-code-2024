@@ -16,8 +16,8 @@ type Registers = dict[str, int]
 
 @dataclass
 class Expression:
-    inputs: set[str]
-    op: Callable[[int, int], int]
+    op: str
+    inputs: frozenset[str]
 
 
 @dataclass
@@ -39,16 +39,20 @@ class Operators:
     def xor_func(a: int, b: int) -> int:
         return a ^ b
 
-    from_name = {
+    to_func = {
         "AND": and_func,
         "OR": or_func,
         "XOR": xor_func,
     }
 
-    to_symbol: dict[Callable[[int, int], int], str] = {
-        and_func: "&",
-        or_func: "|",
-        xor_func: "^",
+    @staticmethod
+    def func(op: str, a: int, b: int) -> int:
+        return Operators.to_func[op](a, b)
+
+    to_symbol: dict[str, str] = {
+        "AND": "&",
+        "OR": "|",
+        "XOR": "^",
     }
 
 
@@ -66,8 +70,8 @@ class Day24:
 
         for op_line in op_lines:
             input1, op_str, input2, _, output = op_line.split()
-            op_func = Operators.from_name[op_str]
-            operation = Operation(Expression({input1, input2}, op_func), output)
+            expression = Expression(op_str, frozenset({input1, input2}))
+            operation = Operation(expression, output)
             self.ops_by_input[input1].append(operation)
             self.ops_by_input[input2].append(operation)
             self.op_by_output[output] = operation
@@ -76,11 +80,10 @@ class Day24:
         self.registers[name] = value
         for operation in self.ops_by_input[name]:
             expression = operation.expression
-            input1, input2 = expression.inputs
-            value1 = self.registers.get(input1, None)
-            value2 = self.registers.get(input2, None)
+            value1, value2 = [self.registers.get(input, None) for input in expression.inputs]
             if value1 is not None and value2 is not None:
-                self.set_register(operation.output, expression.op(value1, value2))
+                new_value = Operators.func(expression.op, value1, value2)
+                self.set_register(operation.output, new_value)
 
     def part1(self) -> None:
         for reg, val in self.init_values.items():
