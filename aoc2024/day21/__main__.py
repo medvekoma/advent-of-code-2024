@@ -1,10 +1,6 @@
 from collections import Counter
-from functools import cache, lru_cache
 from itertools import product
-import json
-from typing import Iterable
 import networkx as nwx
-from aoc2024.utils.benchmark import timer
 from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_file, read_input
 
