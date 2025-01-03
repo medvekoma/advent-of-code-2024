@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, NamedTuple
 
 from aoc2024.utils.collections import split_by
 from aoc2024.utils.reader import read_input
@@ -14,14 +14,12 @@ lines = read_input(IS_TEST)
 type Registers = dict[str, int]
 
 
-@dataclass
-class Expression:
+class Expression(NamedTuple):
     op: str
     inputs: frozenset[str]
 
 
-@dataclass
-class Operation:
+class Operation(NamedTuple):
     expression: Expression
     output: str
 
@@ -69,7 +67,7 @@ class Day24:
             self.init_values[name] = int(value)
 
         for op_line in op_lines:
-            input1, op_str, input2, _, output = op_line.split()
+            input1, op_str, input2, _, output, *_ = op_line.split()
             expression = Expression(op_str, frozenset({input1, input2}))
             operation = Operation(expression, output)
             self.ops_by_input[input1].append(operation)
@@ -116,8 +114,35 @@ class Day24:
             exp = self.reg_expression(reg)
             print(f"{reg}: {exp}")
 
+    def part2(self) -> None:
+        exp_to_output: dict[Expression, str] = {
+            operation.expression: reg
+            for reg, operation in self.op_by_output.items()
+            #
+        }
+
+        a: list[str] = [""] * REGISTER_COUNT
+        b: list[str] = [""] * REGISTER_COUNT
+        c: list[str] = [""] * REGISTER_COUNT
+        t: list[str] = [""] * REGISTER_COUNT
+        for i in range(REGISTER_COUNT - 1):
+            this = f"{i:02}"
+            zreg = f"z{this}"
+            zact = self.op_by_output[zreg].expression
+            if i == 0:
+                t[0] = exp_to_output[Expression("AND", frozenset({"x00", "y00"}))]
+                zexp = Expression("XOR", frozenset({"x00", "y00"}))
+            else:
+                a[i] = exp_to_output[Expression("XOR", frozenset({f"x{this}", f"y{this}"}))]
+                b[i] = exp_to_output[Expression("AND", frozenset({f"x{this}", f"y{this}"}))]
+                c[i] = exp_to_output[Expression("AND", frozenset({a[i], t[i - 1]}))]
+                t[i] = exp_to_output[Expression("OR", frozenset({b[i], c[i]}))]
+                zexp = Expression("XOR", frozenset({a[i], t[i - 1]}))
+            print(i, zact == zexp, zact, zexp)
+
 
 if __name__ == "__main__":
     day24 = Day24()
     day24.part1()
-    day24.dump_expressions()
+    # day24.dump_expressions()
+    day24.part2()
