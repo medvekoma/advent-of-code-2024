@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import Iterable, Optional
+from typing import Optional
 
 import networkx as nwx
 from aoc2024.utils.benchmark import timer
