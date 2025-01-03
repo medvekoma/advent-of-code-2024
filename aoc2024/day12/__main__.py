@@ -1,6 +1,6 @@
 from typing import Optional
 import itertools
-from collections import defaultdict
+from collections import Counter, defaultdict
 from aoc2024.utils.benchmark import timer
 from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_input
