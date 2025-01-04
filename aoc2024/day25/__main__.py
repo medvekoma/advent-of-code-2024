@@ -1,5 +1,5 @@
 from typing import NamedTuple
-from aoc2024.utils.collections import split_by
+from aoc2024.utils.collections import partition, split_by
 from aoc2024.utils.mynumpy import Matrix
 from aoc2024.utils.reader import read_input
 
@@ -19,17 +19,15 @@ def create_matrices() -> list[Matrix]:
 
 
 def create_lock_key(matrix: Matrix) -> LockKey:
-    # check if all cells in the first row are '#'
     is_lock = (matrix[0] == "#").all().item()
-    dot_counts = [(matrix[:, i] == "#").sum().item() - 1 for i in range(matrix.shape[1])]
-    return LockKey(is_lock, dot_counts)
+    pattern = [(matrix[:, i] == "#").sum().item() - 1 for i in range(matrix.shape[1])]
+    return LockKey(is_lock, pattern)
 
 
 def part1() -> None:
     matrices = create_matrices()
     lock_keys = [create_lock_key(matrix) for matrix in matrices]
-    locks = [lk for lk in lock_keys if lk.is_lock]
-    keys = [lk for lk in lock_keys if not lk.is_lock]
+    locks, keys = partition(lock_keys, lambda lk: lk.is_lock)
     result = 0
     for lock in locks:
         for key in keys:

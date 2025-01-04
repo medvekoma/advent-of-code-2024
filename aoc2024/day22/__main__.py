@@ -39,7 +39,7 @@ def last_digits(secret: int, count: int) -> list[int]:
     return digits
 
 
-def process_digits(digits: list[int]) -> dict[tuple[int, int, int, int], int]:
+def get_bananas_by_changes(digits: list[int]) -> dict[tuple[int, int, int, int], int]:
     diff_tuples = [
         (
             (
@@ -51,7 +51,6 @@ def process_digits(digits: list[int]) -> dict[tuple[int, int, int, int], int]:
             digits[i],
         )
         for i in range(4, len(digits))
-        #
     ]
     result = {}
     for diff, res in diff_tuples:
@@ -62,14 +61,14 @@ def process_digits(digits: list[int]) -> dict[tuple[int, int, int, int], int]:
 
 @timer
 def part2() -> None:
-    all_diff_dict: dict[tuple[int, int, int, int], int] = defaultdict(int)
+    total_bananas_by_changes: dict[tuple[int, int, int, int], int] = defaultdict(int)
     for line in lines:
         secret = int(line)
         digits = last_digits(secret, 2000)
-        diff_dict = process_digits(digits)
-        for diff, res in diff_dict.items():
-            all_diff_dict[diff] += res
-    max_value = max(all_diff_dict.values())
+        bananas_by_changes = get_bananas_by_changes(digits)
+        for changes, bananas in bananas_by_changes.items():
+            total_bananas_by_changes[changes] += bananas
+    max_value = max(total_bananas_by_changes.values())
     print(f"Part2: {max_value}")
 
 
