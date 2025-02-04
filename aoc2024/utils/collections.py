@@ -1,12 +1,12 @@
 import re
-from typing import Callable, TypeVar, Generator, Optional
+from typing import Callable, Iterable, TypeVar, Generator, Optional
 
 T = TypeVar("T")
 K = TypeVar("K")
 V = TypeVar("V")
 
 
-def split_by_func(the_list: list[T], condition: Callable[[T], bool]) -> Generator[list[T], None, None]:
+def split_by_func(the_list: list[T], condition: Callable[[T], bool]) -> Iterable[list[T]]:
     start_idx = 0
     for idx, elem in enumerate(the_list):
         if condition(elem):
@@ -15,7 +15,7 @@ def split_by_func(the_list: list[T], condition: Callable[[T], bool]) -> Generato
     yield the_list[start_idx:]
 
 
-def split_by(the_list: list[T], separator: T) -> Generator[list[T], None, None]:
+def split_by(the_list: list[T], separator: T) -> Iterable[list[T]]:
     return split_by_func(the_list, lambda x: x == separator)
 
 

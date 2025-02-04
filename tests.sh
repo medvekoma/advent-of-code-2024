@@ -1,3 +1,3 @@
 #!/bin/bash
-poetry run pylint .
-poetry run mypy .
+uv run pylint .
+uv run mypy .

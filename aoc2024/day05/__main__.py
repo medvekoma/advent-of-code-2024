@@ -15,12 +15,16 @@ def is_good_list(pages: list[int], reverse_rule_dict: dict[int, set[int]]) -> bo
     return True
 
 
-rule_lines, pages_lines = split_by(lines, "")
+rule_lines, pages_lines = list(split_by(lines, ""))
 rule_list = [(int(a), int(b)) for a, b in parse_lines(rule_lines, r"(\d+)\|(\d+)")]
 reversed_rules = defaultdict(set)
 for key, value in rule_list:
     reversed_rules[value].add(key)
-pages_list = [[int(page) for page in pages.split(",")] for pages in pages_lines]
+pages_list = [
+    [int(page) for page in pages.split(",")]
+    for pages in pages_lines
+    #
+]
 good_lists, bad_lists = partition(pages_list, lambda pages: is_good_list(pages, reversed_rules))
 
 

@@ -10,7 +10,7 @@ lines = read_input(IS_TEST)
 
 class Day19:
     def __init__(self) -> None:
-        towels, self.patterns = split_by(lines, "")
+        towels, self.patterns = list(split_by(lines, ""))
         self.towels = towels[0].split(", ")
 
     def is_possible(self, pattern: str) -> bool:

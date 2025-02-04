@@ -61,7 +61,7 @@ class Day24:
         self.ops_by_input: dict[str, list[Operation]] = defaultdict(list)
         self.op_by_output: dict[str, Operation] = {}
 
-        init_lines, op_lines = split_by(lines, "")
+        init_lines, op_lines = list(split_by(lines, ""))
         for init_line in init_lines:
             name, value = init_line.split(": ")
             self.init_values[name] = int(value)
