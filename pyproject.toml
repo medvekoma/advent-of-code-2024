@@ -13,8 +13,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "black>=24.10.0,<25",
+    "mypy>=1.14.1",
     "pylint>=3.3.2,<4",
-    "mypy>=1.13.0,<2",
     "types-networkx>=3.4.2.20241115,<4",
 ]
 

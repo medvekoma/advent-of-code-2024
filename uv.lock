@@ -27,7 +27,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "black", specifier = ">=24.10.0,<25" },
-    { name = "mypy", specifier = ">=1.13.0,<2" },
+    { name = "mypy", specifier = ">=1.14.1" },
     { name = "pylint", specifier = ">=3.3.2,<4" },
     { name = "types-networkx", specifier = ">=3.4.2.20241115,<4" },
 ]
