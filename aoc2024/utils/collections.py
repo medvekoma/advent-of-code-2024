@@ -19,10 +19,6 @@ def split_by(the_list: list[T], separator: T) -> Iterable[list[T]]:
     return split_by_func(the_list, lambda x: x == separator)
 
 
-def split_into(collection: list[T], size: int) -> list[list[T]]:
-    return [collection[i : i + size] for i in range(0, len(collection), size)]
-
-
 def partition(collection: list[T], condition: Callable[[T], bool]) -> tuple[list[T], list[T]]:
     result: dict[bool, list[T]] = {True: [], False: []}
     for item in collection:
